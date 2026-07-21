@@ -226,7 +226,16 @@ class GraphBuilder:
         return mapping.get(entity_type)
 
     def _build_entity_properties(self, entity) -> dict:
-        """Build node properties from an entity."""
+        """
+        Build node properties from an entity.
+
+        Keys here must stay in sync with _entity_type_to_label — that method maps
+        both "location" and "facility" entity types to the "Location" label, but
+        this dict only had a "location" key. A "facility" entity (spaCy's FAC tag)
+        fell through to the generic {"value": ...} shape, which is missing the
+        "name" field _get_key_field("Location") expects — KeyError on every
+        document containing a facility mention.
+        """
         type_to_props = {
             "equipment": {"tag": entity.value, "context": entity.context[:200]},
             "personnel": {"name": entity.value},
@@ -234,6 +243,7 @@ class GraphBuilder:
             "parameter": {"value": entity.value, "context": entity.context[:200]},
             "document_reference": {"document_id": entity.value},
             "location": {"name": entity.value},
+            "facility": {"name": entity.value},
             "organization": {"name": entity.value},
         }
         return type_to_props.get(entity.entity_type, {"value": entity.value})

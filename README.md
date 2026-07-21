@@ -49,7 +49,7 @@ Watch the query token travel from question → embedding → FAISS semantic sear
 
 - Python 3.11+
 - Node.js 18+ and npm
-- Docker Desktop (for Neo4j; optionally Redis and local Ollama)
+- Docker Desktop (for Neo4j + Redis; optionally local Ollama, or the whole backend)
 - 8GB+ RAM
 - An **OpenRouter API key** — see step 4 (required for LLM-generated answers)
 
@@ -60,13 +60,17 @@ git clone <this-repo-url>
 cd ET_Hack/axiom
 ```
 
-### 2. Start Neo4j (knowledge graph)
+### 2. Start the supporting containers (Neo4j + Redis)
 
 ```bash
-docker compose up neo4j -d
+docker compose up neo4j redis -d
 ```
 
-This starts Neo4j Community on `bolt://localhost:7687` (browser UI at [http://localhost:7474](http://localhost:7474), default credentials `neo4j` / `axiom_password`, set in `docker-compose.yml`).
+This starts:
+- **Neo4j Community** on `bolt://localhost:7687` (browser UI at [http://localhost:7474](http://localhost:7474), default credentials `neo4j` / `axiom_password`, set via `NEO4J_AUTH` in `docker-compose.yml`)
+- **Redis** on `localhost:6379` (provisioned for future caching/task-queue use — the current app doesn't call it yet, but it's already wired into `docker-compose.yml` and `config.py` so it's a drop-in when needed)
+
+Ollama is also defined as a container but is started separately in step 7 only if you want a fully local LLM. See [Docker Services Reference](#docker-services-reference) below for the full service list, ports, and an alternative "run everything in Docker" option.
 
 ### 3. Install backend dependencies
 
@@ -88,8 +92,8 @@ copy .env.example .env         # Windows
 Open `backend/.env` and set:
 
 ```env
-LLM_PROVIDER=openai
-OPENAI_API_KEY=sk-or-v1-your-own-openrouter-key-here
+LLM_PROVIDER=openrouter
+OPENROUTER_API_KEY=sk-or-v1-your-own-openrouter-key-here
 ```
 
 > **Get a key:** sign up at [openrouter.ai/keys](https://openrouter.ai/keys) and generate your own API key — it's free to create and has free-tier models available. **Do not use anyone else's key.** Without a key set, the pipeline still runs end-to-end (parsing, OCR, chunking, FAISS, Neo4j) but the final answer-generation step falls back to a plain context summary instead of a full LLM answer.
@@ -124,10 +128,57 @@ Then set `LLM_PROVIDER=ollama` in `backend/.env` — no API key needed for this 
 
 Navigate to [http://localhost:3000](http://localhost:3000/)
 
-- **Pipeline Visualizer** — Upload a PDF and watch all 11 ingestion steps animate in real time
+- **Pipeline Visualizer** — Upload a PDF and watch all 11 ingestion steps animate in real time, or click one of the built-in sample industrial documents (pump inspection report, incident report, SOPs, work orders — see `frontend/public/samples/`) to verify the full pipeline in one click with no file of your own required
 - **Query & Retrieval** — Ask questions and watch FAISS search, graph expansion, re-ranking, and LLM generation stream in live
 - **Dashboard** — FAISS index stats, Neo4j node counts, document inventory, service status
 - **Knowledge Graph** — Text search and semantic search across indexed documents
+
+## Docker Services Reference
+
+`axiom/docker-compose.yml` defines four services. You can bring up any subset, or everything at once.
+
+| Service | Image | Host Port(s) | Purpose | Credentials |
+| --- | --- | --- | --- | --- |
+| `neo4j` | `neo4j:5.22-community` | `7474` (browser UI), `7687` (bolt) | Knowledge graph storage — Document→Page→Section→Chunk→Entity | `neo4j` / `axiom_password` (via `NEO4J_AUTH`) |
+| `redis` | `redis:7-alpine` | `6379` | Reserved for caching / task-queue use — defined and connectable, not yet called by the app | none |
+| `ollama` | `ollama/ollama:latest` | `11434` | Optional fully-local LLM + embedding server | none |
+| `backend` | built from `backend/Dockerfile` | `8000` | FastAPI app (ingestion, retrieval, agents) | reads `axiom/.env` |
+
+Common commands:
+
+```bash
+docker compose up neo4j redis -d      # just the datastores (recommended for local dev — pair with uvicorn in step 5)
+docker compose up -d                  # everything, including the backend itself, in containers
+docker compose ps                     # see what's running and its health
+docker compose logs -f neo4j          # tail logs for a service
+docker compose down                   # stop and remove containers (data volumes persist)
+docker compose down -v                # stop and also wipe Neo4j/Redis/Ollama volumes
+```
+
+**Two `.env` files, two contexts — don't mix them up:**
+- `backend/.env` (from `backend/.env.example`) uses `localhost` hostnames — use this when running the backend directly with `uvicorn` (steps 3–5 above), since it talks to Docker's published ports from the host machine.
+- `axiom/.env` (from `axiom/.env.example`, at the repo root next to `docker-compose.yml`) uses Docker service names (`neo4j:7687`, `redis:6379`, `ollama:11434`) — this is what `docker compose up -d` injects into the `backend` container via `env_file`, since containers reach each other by service name, not `localhost`.
+
+If you use `docker compose up -d` to run the backend in a container too, copy `axiom/.env.example` to `axiom/.env` instead of (or in addition to) `backend/.env`, and set your OpenRouter key there.
+
+## Environment Variables
+
+The most relevant settings from `backend/.env.example` (see `app/config.py` for the full list and defaults):
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `LLM_PROVIDER` | `openrouter` | `openrouter`, `ollama`, `openai`, or `groq` |
+| `OPENROUTER_API_KEY` | _(empty)_ | Your OpenRouter key — required for LLM-generated answers on the default provider |
+| `OPENROUTER_CHAT_MODEL` | `openai/gpt-4o-mini` | Any model slug OpenRouter routes to, e.g. `anthropic/claude-sonnet-4` |
+| `OPENAI_API_KEY` / `GROQ_API_KEY` | _(empty)_ | Keys for the alternative `openai` / `groq` providers |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Local LLM server address |
+| `NEO4J_URI` / `NEO4J_USER` / `NEO4J_PASSWORD` | `bolt://localhost:7687` / `neo4j` / `axiom_password` | Knowledge graph connection |
+| `REDIS_URL` | `redis://localhost:6379/0` | Reserved connection string for future caching use |
+| `FAISS_INDEX_DIR` | `./data/faiss` | Where the persisted vector index is stored on disk |
+| `UPLOAD_DIR` | `./data/uploads` | Where uploaded source documents are stored |
+| `CHUNK_SIZE` / `CHUNK_OVERLAP` | `500` / `70` | Semantic chunking parameters |
+| `SEMANTIC_WEIGHT` / `GRAPH_WEIGHT` | `0.6` / `0.4` | Hybrid retrieval re-ranking weights |
+| `LOG_LEVEL` | `INFO` | Backend log verbosity |
 
 ## Ingestion Pipeline (11 Steps)
 
@@ -192,6 +243,7 @@ Entity -[RELATED_TO]-> Entity
 | Embeddings | sentence-transformers (all-MiniLM-L6-v2) | FREE |
 | Vector DB | FAISS (offline, file-persisted) | FREE |
 | Graph DB | Neo4j Community (Docker) | FREE |
+| Cache/Queue | Redis (Docker, reserved for future use) | FREE |
 | LLM | **OpenRouter (default, requires your own API key)** — or Ollama / Groq / OpenAI | Bring-your-own key |
 | Backend | FastAPI + Uvicorn | FREE |
 | Frontend | Next.js 16 + React 19 | FREE |
@@ -200,10 +252,13 @@ Entity -[RELATED_TO]-> Entity
 
 ```
 axiom/
-├── docker-compose.yml          # Neo4j + Ollama containers
+├── docker-compose.yml          # neo4j + redis + ollama + backend containers
+├── .env.example                 # Env vars for docker compose (service hostnames)
 ├── docs/
 │   └── assets/                 # README animated pipeline diagrams
 ├── backend/
+│   ├── .env.example             # Env vars for local uvicorn runs (localhost hostnames)
+│   ├── Dockerfile               # Backend container image (PaddleOCR/Tesseract + Python deps)
 │   ├── app/
 │   │   ├── main.py             # FastAPI app with FAISS + Neo4j lifespan
 │   │   ├── config.py           # Settings (chunk size, weights, paths)
@@ -235,6 +290,8 @@ axiom/
 │       ├── faiss/                        # Persisted FAISS index
 │       └── uploads/                      # Uploaded documents
 └── frontend/
+    ├── public/
+    │   └── samples/             # One-click demo documents for the Pipeline Visualizer
     └── src/app/
         ├── page.js             # Pipeline Visualizer + Query UI
         └── globals.css          # Dark theme styles

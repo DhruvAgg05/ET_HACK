@@ -52,6 +52,19 @@ class AnswerGenerator:
     ) -> QueryResponse:
         """Generate an answer from retrieved context."""
 
+        # Nothing cleared the relevance floor and there's no graph context either —
+        # answer honestly instead of sending the LLM an empty context and hoping
+        # it follows the "say you don't know" instruction in the system prompt.
+        if not retrieved_chunks and not graph_context:
+            return QueryResponse(
+                answer="I don't have sufficient information in the document corpus to answer this confidently. "
+                       "No sufficiently relevant sources were found for this question.",
+                confidence="low",
+                sources=[],
+                related_entities=[],
+                suggested_followups=[],
+            )
+
         # Build context string with numbered sources
         context_parts = []
         sources = []
@@ -84,12 +97,17 @@ class AnswerGenerator:
         full_context = "\n---\n".join(context_parts)
 
         # Generate answer
-        if self.provider == "ollama":
+        if self.provider == "openrouter" and settings.openrouter_api_key:
+            answer, confidence = await self._openrouter_generate(query, full_context)
+        elif self.provider == "ollama":
             answer, confidence = await self._ollama_generate(query, full_context)
         elif self.provider == "openai" and settings.openai_api_key:
             answer, confidence = await self._openai_generate(query, full_context)
         elif self.provider == "groq" and settings.groq_api_key:
             answer, confidence = await self._groq_generate(query, full_context)
+        elif self.provider == "openrouter" and not settings.openrouter_api_key:
+            answer = "OPENROUTER_API_KEY is not set. Add your OpenRouter API key to .env and restart the backend."
+            confidence = "low"
         else:
             # Fallback: return context summary without LLM
             answer = self._fallback_answer(query, retrieved_chunks)
@@ -192,6 +210,35 @@ class AnswerGenerator:
             "Configure GROQ_API_KEY or OPENAI_API_KEY for full answer generation.*"
         )
         return "\n".join(answer_parts)
+
+    async def _openrouter_generate(self, query: str, context: str) -> tuple[str, str]:
+        """Generate answer using OpenRouter (OpenAI-compatible, routes to many models)."""
+        try:
+            from openai import AsyncOpenAI
+            client = AsyncOpenAI(
+                api_key=settings.openrouter_api_key,
+                base_url=settings.openrouter_base_url,
+            )
+            response = await client.chat.completions.create(
+                model=settings.openrouter_chat_model,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {
+                        "role": "user",
+                        "content": f"Context:\n{context}\n\nQuestion: {query}",
+                    },
+                ],
+                temperature=0.1,
+                max_tokens=1500,
+            )
+
+            answer = response.choices[0].message.content
+            confidence = self._assess_confidence(answer, context)
+            return answer, confidence
+
+        except Exception as e:
+            logger.error("OpenRouter generation failed", error=str(e))
+            return f"Error generating answer with OpenRouter: {str(e)}", "low"
 
     async def _groq_generate(self, query: str, context: str) -> tuple[str, str]:
         """Generate answer using Groq's OpenAI-compatible API."""

@@ -12,6 +12,46 @@ const TABS = [
   { id: 'graph', label: 'Knowledge Graph', icon: 'o' },
 ];
 
+// Pre-built industrial documents for one-click pipeline demos — no file
+// picker needed to verify ingestion end to end.
+const SAMPLE_DOCS = [
+  {
+    file: 'inspection_report_pump_P101A.txt',
+    label: 'Pump Inspection Report',
+    category: 'Inspection Report',
+    tag: 'P-101A',
+    icon: '◎',
+  },
+  {
+    file: 'incident_report_steam_leak.txt',
+    label: 'Steam Leak Incident',
+    category: 'Incident Report',
+    tag: 'E-301A',
+    icon: '⚠',
+  },
+  {
+    file: 'sop_pump_maintenance.txt',
+    label: 'Pump Maintenance SOP',
+    category: 'SOP',
+    tag: 'SOP-PM-042',
+    icon: '≡',
+  },
+  {
+    file: 'sop_hot_work_permit.txt',
+    label: 'Hot Work Permit SOP',
+    category: 'SOP',
+    tag: 'SOP-OPS-101',
+    icon: '△',
+  },
+  {
+    file: 'work_orders_batch.txt',
+    label: 'Work Order Batch',
+    category: 'Work Order',
+    tag: '5 orders',
+    icon: '▤',
+  },
+];
+
 export default function Home() {
   const [tab, setTab] = useState('ingest');
   const [health, setHealth] = useState(null);
@@ -56,6 +96,7 @@ function PipelineVisualizerTab() {
   const [steps, setSteps] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
   const [completed, setCompleted] = useState(null);
+  const [loadingSample, setLoadingSample] = useState(null);
   const fileRef = useRef(null);
 
   const upload = async file => {
@@ -84,6 +125,22 @@ function PipelineVisualizerTab() {
       setSteps([{ step: 0, name: 'Error', status: 'error', description: error.message }]);
     } finally {
       setIsRunning(false);
+      setLoadingSample(null);
+    }
+  };
+
+  const loadSample = async doc => {
+    if (isRunning) return;
+    setLoadingSample(doc.file);
+    try {
+      const res = await fetch(`/samples/${doc.file}`);
+      if (!res.ok) throw new Error(`Could not load sample (${res.status})`);
+      const blob = await res.blob();
+      const file = new File([blob], doc.file, { type: 'text/plain' });
+      await upload(file);
+    } catch (error) {
+      setLoadingSample(null);
+      setSteps([{ step: 0, name: 'Error', status: 'error', description: error.message }]);
     }
   };
 
@@ -98,6 +155,30 @@ function PipelineVisualizerTab() {
             onChange={e => e.target.files?.[0] && upload(e.target.files[0])}
           />
           {isRunning ? <><span className="spinner" /><div style={{ marginTop: 8 }}>Processing...</div></> : <><div style={{ fontSize: 28 }}>+</div><div>Upload a document</div><div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>PDF, DOCX, TXT, images</div></>}
+        </div>
+
+        <div className="sample-docs">
+          <div className="sample-docs-label">Or verify instantly with a sample industrial document</div>
+          <div className="sample-docs-grid">
+            {SAMPLE_DOCS.map(doc => (
+              <button
+                key={doc.file}
+                type="button"
+                className="sample-doc-card"
+                disabled={isRunning}
+                onClick={() => loadSample(doc)}
+              >
+                <span className="sample-doc-icon">{loadingSample === doc.file ? <span className="spinner" /> : doc.icon}</span>
+                <span className="sample-doc-body">
+                  <span className="sample-doc-name">{doc.label}</span>
+                  <span className="sample-doc-meta">
+                    <span className="sample-doc-category">{doc.category}</span>
+                    <span className="sample-doc-tag">{doc.tag}</span>
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

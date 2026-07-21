@@ -6,11 +6,12 @@ Includes SSE streaming endpoint for real-time pipeline step visualization.
 from fastapi import APIRouter, UploadFile, File, Request, HTTPException
 from fastapi.responses import StreamingResponse
 from pathlib import Path
-import shutil
 import json
 import uuid
 import asyncio
 import time
+import hashlib
+import re
 import structlog
 
 from app.config import settings
@@ -38,24 +39,71 @@ def _sse_event(event: str, data: dict) -> str:
     """Format a Server-Sent Event."""
     return f"event: {event}\ndata: {json.dumps(data)}\n\n"
 
+def _content_hash(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+def _hash_index_path() -> Path:
+    return Path(settings.upload_dir) / "_content_hashes.json"
+
+def _load_hash_index() -> dict:
+    """Maps content sha256 -> {document_id, filename}, used to detect re-uploads
+    of a document already ingested (same bytes) so we don't duplicate vectors/graph nodes."""
+    path = _hash_index_path()
+    if path.exists():
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
+
+def _save_hash_index(index: dict):
+    _hash_index_path().write_text(json.dumps(index), encoding="utf-8")
+
+def _safe_stored_filename(original: str, content_hash: str) -> str:
+    """
+    Derive a filesystem-safe stored filename from a client-supplied name.
+    Path(original).name strips directory components (defeats ../ traversal and
+    absolute paths); the hash suffix prevents two different uploads with the
+    same display name from silently overwriting each other on disk.
+    """
+    name = Path(original).name or "file"
+    stem = Path(name).stem
+    ext = Path(name).suffix.lower()
+    safe_stem = re.sub(r"[^A-Za-z0-9._-]", "_", stem)[:100] or "file"
+    return f"{safe_stem}_{content_hash[:10]}{ext}"
+
 @router.post("/document/stream")
 async def ingest_document_stream(request: Request, file: UploadFile = File(...)):
     """
     Stream the ingestion pipeline steps in real-time via SSE.
     Each step emits an event with status, data, and timing.
     """
+    display_filename = Path(file.filename).name or "file"
     allowed_extensions = {".pdf", ".docx", ".doc", ".xlsx", ".png", ".jpg", ".jpeg", ".tiff", ".tif", ".txt", ".json", ".csv"}
-    file_ext = Path(file.filename).suffix.lower()
+    file_ext = Path(display_filename).suffix.lower()
     if file_ext not in allowed_extensions:
         raise HTTPException(status_code=400, detail=f"Unsupported file type: {file_ext}")
+
+    file_bytes = await file.read()
+    content_hash = _content_hash(file_bytes)
+
+    hash_index = _load_hash_index()
+    existing = hash_index.get(content_hash)
+    if existing:
+        async def already_ingested():
+            yield _sse_event("duplicate", {
+                "message": "This exact file was already ingested — skipping re-processing.",
+                "document_id": existing["document_id"],
+                "filename": existing["filename"],
+            })
+        return StreamingResponse(already_ingested(), media_type="text/event-stream")
 
     # Save file first
     upload_dir = Path(settings.upload_dir)
     upload_dir.mkdir(parents=True, exist_ok=True)
-    file_path = upload_dir / file.filename
-
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    stored_name = _safe_stored_filename(display_filename, content_hash)
+    file_path = upload_dir / stored_name
+    file_path.write_bytes(file_bytes)
 
     async def generate_events():
         import fitz
@@ -161,7 +209,9 @@ async def ingest_document_stream(request: Request, file: UploadFile = File(...))
         })
 
         raw_text_parts = []
+        ocr_page_texts: dict[int, str] = {}
         for page in parsed.pages:
+            page_text = page.text
             if page.has_text and not ocr_engine.needs_ocr(page.text):
                 raw_text_parts.append(page.text)
             else:
@@ -173,7 +223,8 @@ async def ingest_document_stream(request: Request, file: UploadFile = File(...))
                         image_bytes = pix.tobytes("png")
                         doc.close()
                         ocr_result = ocr_engine.ocr_pdf_page_image(image_bytes, page.page_number)
-                        raw_text_parts.append(ocr_result.text)
+                        page_text = ocr_result.text
+                        raw_text_parts.append(page_text)
                         ocr_pages.append({
                             "page": page.page_number,
                             "confidence": round(ocr_result.confidence, 3),
@@ -183,6 +234,8 @@ async def ingest_document_stream(request: Request, file: UploadFile = File(...))
                         raw_text_parts.append(page.text)
                 else:
                     raw_text_parts.append(page.text)
+
+            ocr_page_texts[page.page_number] = page_text
 
             for table in page.tables:
                 for row in table:
@@ -239,7 +292,10 @@ async def ingest_document_stream(request: Request, file: UploadFile = File(...))
         })
 
         structurer = DocumentStructurer()
-        cleaned_page_texts = {p.page_number: text_cleaner.clean(p.text) for p in parsed.pages}
+        cleaned_page_texts = {
+            page_number: text_cleaner.clean(text)
+            for page_number, text in ocr_page_texts.items()
+        }
         structured_doc = structurer.structure(parsed, cleaned_page_texts)
         total_sections = sum(len(p.sections) for p in structured_doc.pages)
 
@@ -273,12 +329,12 @@ async def ingest_document_stream(request: Request, file: UploadFile = File(...))
         })
 
         classifier = DocumentClassifier()
-        category = classifier.classify(cleaned_text, file.filename)
+        category = classifier.classify(cleaned_text, display_filename)
 
         yield _sse_event("step", {
             "step": 6, "name": "Document Classification",
             "status": "complete",
-            "result": {"category": category.value, "filename": file.filename},
+            "result": {"category": category.value, "filename": display_filename},
             "duration_ms": int((time.time() - step6_start) * 1000),
         })
 
@@ -292,6 +348,7 @@ async def ingest_document_stream(request: Request, file: UploadFile = File(...))
 
         chunker = TextChunker()
         all_chunks = []
+        next_chunk_index = 0
         for page in structured_doc.pages:
             for section in page.sections:
                 section_text = "\n\n".join(section.paragraphs)
@@ -302,8 +359,10 @@ async def ingest_document_stream(request: Request, file: UploadFile = File(...))
                     section_chunks = chunker.chunk_text(
                         text=section_text, document_id=document_id,
                         page_number=page.page, section_heading=section.heading,
-                        metadata={"filename": file.filename, "category": category.value, "page": page.page, "section": section.heading},
+                        metadata={"filename": display_filename, "category": category.value, "page": page.page, "section": section.heading},
+                        start_index=next_chunk_index,
                     )
+                    next_chunk_index += len(section_chunks)
                     all_chunks.extend(section_chunks)
 
         chunk_samples = [
@@ -387,6 +446,7 @@ async def ingest_document_stream(request: Request, file: UploadFile = File(...))
         try:
             faiss_service: FAISSService = request.app.state.faiss
             await faiss_service.index_chunks(doc_chunks, document_id)
+            request.app.state.retriever.update_bm25_index(faiss_service.get_all_metadata())
             faiss_status = "indexed"
         except Exception as e:
             faiss_status = f"failed: {str(e)}"
@@ -412,7 +472,7 @@ async def ingest_document_stream(request: Request, file: UploadFile = File(...))
         })
 
         document = IngestedDocument(
-            document_id=document_id, filename=file.filename,
+            document_id=document_id, filename=display_filename,
             file_type=DocumentType.PDF if file_type_str == "PDF" else DocumentType.UNKNOWN,
             category=category, total_pages=parsed.total_pages,
             extracted_text=cleaned_text, chunks=doc_chunks,
@@ -441,16 +501,22 @@ async def ingest_document_stream(request: Request, file: UploadFile = File(...))
             "duration_ms": int((time.time() - step11_start) * 1000),
         })
 
+        # Record content hash so a re-upload of these exact bytes is recognized next time
+        hash_index[content_hash] = {"document_id": document_id, "filename": display_filename}
+        _save_hash_index(hash_index)
+
         # === COMPLETE ===
         total_duration = int((time.time() - pipeline_start) * 1000)
         yield _sse_event("complete", {
             "document_id": document_id,
-            "filename": file.filename,
+            "filename": display_filename,
             "category": category.value,
             "total_pages": parsed.total_pages,
             "total_chunks": len(all_chunks),
             "total_entities": len(entities),
             "total_relationships": len(relationships),
+            "faiss_status": faiss_status,
+            "graph_status": graph_status,
             "total_duration_ms": total_duration,
         })
 
@@ -481,52 +547,89 @@ async def ingest_document(request: Request, file: UploadFile = File(...)):
     Returns the full ingestion result with extracted entities and metadata.
     """
     # Validate file type
+    display_filename = Path(file.filename).name or "file"
     allowed_extensions = {".pdf", ".docx", ".doc", ".xlsx", ".png", ".jpg", ".jpeg", ".tiff", ".tif", ".txt", ".json", ".csv"}
-    file_ext = Path(file.filename).suffix.lower()
+    file_ext = Path(display_filename).suffix.lower()
     if file_ext not in allowed_extensions:
         raise HTTPException(
             status_code=400,
             detail=f"Unsupported file type: {file_ext}. Allowed: {allowed_extensions}",
         )
 
-    # Save uploaded file
+    file_bytes = await file.read()
+    content_hash = _content_hash(file_bytes)
+
+    hash_index = _load_hash_index()
+    existing = hash_index.get(content_hash)
+    if existing:
+        return {
+            "status": "duplicate",
+            "message": "This exact file was already ingested — skipping re-processing.",
+            "document_id": existing["document_id"],
+            "filename": existing["filename"],
+        }
+
+    # Save uploaded file under a sanitized, collision-proof name
     upload_dir = Path(settings.upload_dir)
     upload_dir.mkdir(parents=True, exist_ok=True)
-    file_path = upload_dir / file.filename
+    stored_name = _safe_stored_filename(display_filename, content_hash)
+    file_path = upload_dir / stored_name
 
     try:
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        file_path.write_bytes(file_bytes)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
 
-    logger.info("File uploaded", filename=file.filename, path=str(file_path))
+    logger.info("File uploaded", filename=display_filename, path=str(file_path))
 
     # Run ingestion pipeline
     try:
         pipeline = IngestionPipeline()
-        document = await pipeline.ingest(file_path, filename=file.filename)
+        document = await pipeline.ingest(file_path, filename=display_filename)
     except Exception as e:
-        logger.error("Ingestion failed", error=str(e), filename=file.filename)
+        logger.error("Ingestion failed", error=str(e), filename=display_filename)
         raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
 
     # Index chunks in FAISS vector store
+    faiss_indexed = False
+    faiss_error = None
     try:
         faiss_service: FAISSService = request.app.state.faiss
         await faiss_service.index_chunks(document.chunks, document.document_id)
+        request.app.state.retriever.update_bm25_index(faiss_service.get_all_metadata())
+        faiss_indexed = True
     except Exception as e:
-        logger.error("FAISS indexing failed", error=str(e))
+        faiss_error = str(e)
+        logger.error("FAISS indexing failed", error=faiss_error)
 
     # Populate knowledge graph
+    graph_populated = False
+    graph_error = None
     try:
         neo4j: Neo4jClient = request.app.state.neo4j
         graph_builder = GraphBuilder(neo4j)
         await graph_builder.populate_from_document(document)
+        graph_populated = True
     except Exception as e:
-        logger.error("Graph population failed", error=str(e))
+        graph_error = str(e)
+        logger.error("Graph population failed", error=graph_error)
+
+    # Only remember this hash if the document actually made it into at least
+    # one retrievable store — otherwise a re-upload after a transient failure
+    # would be silently skipped as a "duplicate" of a document that isn't there.
+    if faiss_indexed or graph_populated:
+        hash_index[content_hash] = {"document_id": document.document_id, "filename": display_filename}
+        _save_hash_index(hash_index)
+
+    warnings = []
+    if not faiss_indexed:
+        warnings.append(f"Vector indexing failed — document is not searchable: {faiss_error}")
+    if not graph_populated:
+        warnings.append(f"Knowledge graph population failed: {graph_error}")
 
     return {
-        "status": "success",
+        "status": "success" if (faiss_indexed and graph_populated) else "partial_success" if (faiss_indexed or graph_populated) else "failed",
+        "warnings": warnings,
         "document_id": document.document_id,
         "filename": document.filename,
         "file_type": document.file_type.value,
@@ -578,7 +681,8 @@ async def ingest_batch(request: Request, files: list[UploadFile] = File(...)):
 
     return {
         "total": len(files),
-        "successful": sum(1 for r in results if r.get("status") == "success"),
+        "successful": sum(1 for r in results if r.get("status") in ("success", "duplicate")),
+        "partial": sum(1 for r in results if r.get("status") == "partial_success"),
         "failed": sum(1 for r in results if r.get("status") == "failed"),
         "results": results,
     }

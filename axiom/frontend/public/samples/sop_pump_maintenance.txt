@@ -1,0 +1,95 @@
+STANDARD OPERATING PROCEDURE
+SOP-PM-042: Preventive Maintenance of Centrifugal Pumps
+
+Revision: 03
+Effective Date: 01-Jan-2024
+Prepared By: Suresh Patel (Maintenance Engineer)
+Approved By: Dr. Vikram Singh (Plant Manager)
+Classification: Safety Critical
+
+1. PURPOSE AND SCOPE
+
+This procedure defines the step-by-step preventive maintenance activities for all centrifugal pumps in the Gujarat Refinery Complex. This SOP applies to pumps P-101A, P-101B, P-201A, P-201B, P-301A, P-301B, and all auxiliary centrifugal pumps in CDU-1, CDU-2, and the Hydrogen Generation Unit.
+
+All maintenance activities must comply with OISD-137 (Inspection and Maintenance of Cross-Country Pipelines) and API-610 (Centrifugal Pumps for Petroleum Industry).
+
+2. SAFETY PRECAUTIONS
+
+Before commencing any maintenance activity:
+- Obtain valid Permit to Work (PTW) as per SOP-PTW-001
+- Ensure Lock-Out Tag-Out (LOTO) procedure SOP-LOTO-003 is completed
+- Verify zero energy state confirmation from Panel Operator
+- Wear required PPE: Safety helmet, goggles, flame-resistant coveralls, safety shoes
+- Check H2S monitor readings if working in sour service areas
+- Ensure fire extinguisher (DCP type) is available within 15 meters
+
+3. QUARTERLY MAINTENANCE CHECKLIST
+
+3.1 Vibration Analysis
+- Measure vibration levels at drive end (DE) and non-drive end (NDE) bearings
+- Acceptable limits per ISO-10816:
+  - Normal: < 4.5 mm/s RMS
+  - Warning: 4.5-7.1 mm/s RMS
+  - Critical: > 7.1 mm/s RMS (immediate shutdown required)
+- Record baseline vibration signature for trend analysis
+- Compare with previous readings from CMMS database
+
+3.2 Bearing Temperature Check
+- Measure bearing temperature using IR thermometer
+- Normal operating range: 45-75 deg C
+- Warning threshold: 85 deg C
+- Trip threshold: 95 deg C (automatic shutdown via THS-xxx)
+
+3.3 Mechanical Seal Inspection
+- Check for visible leakage at seal faces
+- Acceptable leakage: < 5 drops per minute for single seals
+- Zero visible leakage required for dual/tandem seals
+- Verify seal flush system pressure and flow (Plan 11/13/54)
+- Check seal quench/drain connections
+
+3.4 Lubrication
+- Verify oil level in bearing housing (sight glass check)
+- Oil grade: ISO VG-68 mineral oil (or as specified on equipment datasheet)
+- Oil change interval: 6 months or 4000 operating hours (whichever is earlier)
+- Grease-lubricated bearings: Apply Shell Gadus S2 V220 at 3-month intervals
+- Check oil condition - discoloration, water contamination, metal particles
+
+4. ANNUAL MAINTENANCE (DURING TURNAROUND)
+
+4.1 Complete Pump Overhaul
+- Disassemble pump and inspect all internal components
+- Check impeller for erosion, cavitation damage, and balance
+- Measure shaft runout (max allowable: 0.05mm TIR)
+- Replace wear rings if clearance exceeds API-610 limits
+- Replace all O-rings, gaskets, and mechanical seal components
+- Conduct hydraulic performance test after reassembly
+
+4.2 Alignment Verification
+- Perform laser alignment of pump-motor coupling
+- Maximum misalignment: 0.05mm offset, 0.05mm/100mm angular
+- Document alignment readings in maintenance record
+
+5. DOCUMENTATION
+
+All maintenance activities must be recorded in:
+- Computerized Maintenance Management System (CMMS)
+- Equipment History Card
+- PTW closure report
+
+Work Orders for pump maintenance:
+- Quarterly PM: WO prefix "PM-Q-"
+- Annual overhaul: WO prefix "PM-A-"
+- Corrective maintenance: WO prefix "CM-"
+
+6. REFERENCES
+
+- API-610: Centrifugal Pumps for Petroleum Industry
+- ISO-10816: Mechanical Vibration - Evaluation
+- OISD-137: Inspection and Maintenance
+- OISD-154: Safety Inspection of Refinery Equipment
+- Factory Act 1948
+- Plant Maintenance Manual, Chapter 7
+
+Prepared By: Suresh Patel (Maintenance Engineer)
+Reviewed By: Amit Sharma (Inspection Engineer)
+Approved By: Dr. Vikram Singh (Plant Manager)

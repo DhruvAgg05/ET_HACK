@@ -38,7 +38,8 @@ faiss-cpu>=1.9,<2
 numpy>=1.26,<2
 
 # NLP & Entity Extraction
-spacy>=3.7,<3.8
+# spacy 3.7 doesn't have prebuilt wheels for Python 3.13 (blis fails to build from source)
+spacy>=3.8,<4
 
 # Search
 rank-bm25>=0.2.2,<1

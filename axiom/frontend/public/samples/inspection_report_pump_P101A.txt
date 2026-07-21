@@ -1,0 +1,110 @@
+EQUIPMENT INSPECTION REPORT
+Report No: INS-2024-0392
+Inspection Type: Risk-Based Inspection (RBI)
+
+Equipment Tag: P-101A
+Equipment Name: Crude Charge Pump (Primary)
+Equipment Type: Centrifugal Pump, API-610 Type BB2
+Location: CDU-1 Pump House, Gujarat Refinery Complex
+Manufacturer: Flowserve Corporation
+Model: HPX 6x8x13
+Serial Number: FSC-2018-44721
+Installation Date: 15-Jun-2018
+Design Pressure: 42 kg/cm2
+Design Temperature: 180 deg C
+Operating Pressure: 35.2 kg/cm2
+Operating Temperature: 156 deg C
+Service: Hot Crude Oil (API Gravity 32.5)
+
+1. INSPECTION SUMMARY
+
+Inspection Date: 10-Feb-2024
+Inspector: Amit Sharma (Inspection Engineer, API-510/570 Certified)
+Next Inspection Due: 10-Feb-2025
+
+Overall Condition Rating: SATISFACTORY (Grade B)
+Remaining Life Assessment: 8 years (based on current corrosion rate)
+
+2. VIBRATION MEASUREMENTS
+
+Location          | Reading (mm/s RMS) | Limit  | Status
+Drive End (DE) H  | 3.2                | 4.5    | NORMAL
+Drive End (DE) V  | 2.8                | 4.5    | NORMAL
+Drive End (DE) A  | 3.5                | 4.5    | NORMAL
+Non-Drive (NDE) H | 4.1                | 4.5    | WARNING
+Non-Drive (NDE) V | 3.9                | 4.5    | NORMAL
+Non-Drive (NDE) A | 4.3                | 4.5    | WARNING
+
+Trend Analysis: NDE bearing vibration has increased 35% over last 6 months.
+Recommendation: Schedule bearing replacement during next planned outage.
+Frequency spectrum analysis indicates possible ball pass frequency outer race (BPFO) defect.
+
+3. THICKNESS MEASUREMENTS
+
+Component           | Original | Measured | Min Req | Corr Rate  | Status
+Pump Casing         | 12.0 mm  | 11.2 mm  | 9.5 mm  | 0.13 mm/yr | OK
+Suction Nozzle      | 8.5 mm   | 7.8 mm   | 6.2 mm  | 0.12 mm/yr | OK
+Discharge Nozzle    | 9.0 mm   | 8.1 mm   | 6.8 mm  | 0.15 mm/yr | OK
+Wear Ring (Casing)  | 0.35 mm  | 0.52 mm  | 0.70 mm | N/A        | OK
+Wear Ring (Impeller)| 0.35 mm  | 0.48 mm  | 0.70 mm | N/A        | OK
+
+4. MECHANICAL SEAL CONDITION
+
+Seal Type: John Crane Type 4620 (Dual Pressurized)
+Barrier Fluid: Clean diesel (Plan 53B)
+Barrier Pressure: 38.5 kg/cm2 (maintained 3.3 kg/cm2 above process)
+Leakage Observed: None (zero visible leakage - ACCEPTABLE)
+Seal Flush System: Operating normally
+
+5. BEARING CONDITION
+
+Drive End: SKF 6316-2RS (Deep Groove Ball Bearing)
+- Temperature: 62 deg C (Normal range: 45-75 deg C)
+- Oil condition: Clear, no contamination detected
+- Recommendation: Continue monitoring
+
+Non-Drive End: SKF 7316-BECBM (Angular Contact Ball Bearing)
+- Temperature: 71 deg C (Approaching warning threshold)
+- Oil condition: Slight discoloration noted
+- Vibration trending upward (see Section 2)
+- Recommendation: REPLACE BEARING during next opportunity. Order spare immediately.
+- Estimated remaining life: 3-4 months based on degradation trend
+
+6. MOTOR CONDITION
+
+Motor Tag: M-101A
+Motor Type: Squirrel Cage Induction, TEFC
+Rating: 250 kW, 3300V, 50Hz
+Current Draw: 42A (rated 48A) - 87.5% loading - NORMAL
+Insulation Resistance: 850 MOhm (minimum acceptable: 100 MOhm) - GOOD
+Winding Temperature: 78 deg C (Class F insulation, max 155 deg C) - NORMAL
+
+7. COMPLIANCE
+
+This inspection complies with:
+- API-610: Centrifugal Pumps for Petroleum Industry
+- OISD-154: Safety Inspection of Refinery Equipment
+- API-510: Pressure Vessel Inspection Code (for pump casing)
+- ISO-10816-3: Vibration Evaluation for Industrial Machines
+
+8. CORRECTIVE ACTIONS REQUIRED
+
+Priority HIGH:
+- Replace NDE bearing (SKF 7316-BECBM) within 60 days
+- Create Work Order WO-2024-0891 for bearing replacement
+- Order spare bearing from approved vendor (Lead time: 2-3 weeks)
+
+Priority MEDIUM:
+- Change bearing housing oil on both ends
+- Schedule laser alignment check after bearing replacement
+- Update vibration baseline after bearing replacement
+
+Priority LOW:
+- Repaint pump base plate (surface corrosion observed)
+- Replace corroded foundation bolt (northeast corner)
+
+Inspector: Amit Sharma
+Badge No: INS-0042
+Certification: API-510, API-570, API-653
+Signature: [Signed]
+Date: 10-Feb-2024

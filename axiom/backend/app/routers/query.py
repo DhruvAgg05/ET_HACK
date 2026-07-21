@@ -37,12 +37,10 @@ async def ask_question(request: Request, query: QueryRequest):
 
     logger.info("Query received", question=query.question[:100])
 
-    # Get services from app state
-    faiss_service: FAISSService = request.app.state.faiss
     neo4j: Neo4jClient = request.app.state.neo4j
 
-    # Initialize retriever (FAISS + Neo4j hybrid)
-    retriever = HybridRetriever(faiss_service=faiss_service, neo4j=neo4j)
+    # Shared retriever (holds the BM25 index built at startup and refreshed on ingest)
+    retriever: HybridRetriever = request.app.state.retriever
 
     # Perform hybrid retrieval
     category_filter = query.filters.get("category") if query.filters else None
@@ -80,10 +78,7 @@ async def search_documents(request: Request, query: QueryRequest):
     Search documents without answer generation — returns ranked chunks.
     Useful for exploring the document corpus.
     """
-    faiss_service: FAISSService = request.app.state.faiss
-    neo4j: Neo4jClient = request.app.state.neo4j
-
-    retriever = HybridRetriever(faiss_service=faiss_service, neo4j=neo4j)
+    retriever: HybridRetriever = request.app.state.retriever
 
     category_filter = query.filters.get("category") if query.filters else None
     retrieved = await retriever.retrieve(
@@ -292,7 +287,7 @@ async def ask_question_stream(request: Request, query: QueryRequest):
             "description": f"Scoring: {settings.semantic_weight} × Semantic + {settings.graph_weight} × Graph..."
         })
 
-        retriever = HybridRetriever(faiss_service=faiss_service, neo4j=neo4j)
+        retriever: HybridRetriever = request.app.state.retriever
         final_results = await retriever.retrieve(
             query=query.question,
             top_k=query.top_k,
@@ -349,10 +344,16 @@ async def ask_question_stream(request: Request, query: QueryRequest):
 
         # === STEP 7: LLM Generation ===
         step7_start = time.time()
+        provider_model = {
+            "openrouter": settings.openrouter_chat_model,
+            "ollama": settings.ollama_chat_model,
+            "openai": settings.openai_chat_model,
+            "groq": settings.groq_chat_model,
+        }.get(settings.llm_provider, settings.llm_provider)
         yield _sse_event("step", {
             "step": 7, "name": "LLM Generation",
             "status": "running",
-            "description": f"Sending to {settings.ollama_chat_model} via Ollama..."
+            "description": f"Sending to {provider_model} via {settings.llm_provider}..."
         })
 
         generator = AnswerGenerator()
@@ -373,7 +374,7 @@ async def ask_question_stream(request: Request, query: QueryRequest):
             "step": 7, "name": "LLM Generation",
             "status": "complete",
             "result": {
-                "model": settings.ollama_chat_model,
+                "model": provider_model,
                 "answer_length": len(response.answer) if hasattr(response, 'answer') else 0,
                 "confidence": response.confidence if hasattr(response, 'confidence') else "unknown",
                 "sources_cited": len(response.sources) if hasattr(response, 'sources') else 0,

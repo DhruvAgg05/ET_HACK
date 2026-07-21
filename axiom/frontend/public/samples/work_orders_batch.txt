@@ -1,0 +1,69 @@
+WORK ORDER: WO-100000
+Equipment: FV-1001
+Type: Predictive Maintenance
+Priority: High
+Date: 18-Dec-2023
+Assigned To: Pradeep Joshi
+Description: Corrosion under insulation (CUI)
+Findings: Inspection of FV-1001 revealed high vibration - misalignment detected. Equipment was isolated as per PTW-4711. Maintenance carried out as per SOP-MAINT-714.
+Parts Used: Coupling element (qty: 1)
+Man-Hours: 44
+Standard: ASME B31.3
+
+============================================================
+
+WORK ORDER: WO-100001
+Equipment: P-101B
+Type: Preventive Maintenance
+Priority: Medium
+Date: 28-Jun-2023
+Assigned To: Anil Reddy
+Description: Instrument drift - requires recalibration
+Findings: Inspection of P-101B revealed instrument drift - requires recalibration. Equipment was isolated as per PTW-8941. Maintenance carried out as per SOP-MAINT-661.
+Parts Used: Gasket set DN150 PN40 (qty: 1)
+Man-Hours: 12
+Standard: OISD-163
+
+============================================================
+
+WORK ORDER: WO-100002
+Equipment: HX-502
+Type: Predictive Maintenance
+Priority: Critical
+Date: 18-Mar-2022
+Assigned To: Suresh Patel
+Description: High vibration - misalignment detected
+Findings: Inspection of HX-502 revealed corrosion under insulation (cui). Equipment was isolated as per PTW-8610. Maintenance carried out as per SOP-MAINT-994.
+Parts Used: Bearing SKF 6205-2RS (qty: 2)
+Man-Hours: 8
+Standard: API-610
+
+============================================================
+
+WORK ORDER: WO-100003
+Equipment: P-201A
+Type: Corrective Maintenance
+Priority: Medium
+Date: 26-May-2024
+Assigned To: Amit Sharma
+Description: Control valve sticking - stem packing worn
+Findings: Inspection of P-201A revealed gasket failure at flange joint. Equipment was isolated as per PTW-4111. Maintenance carried out as per SOP-MAINT-259.
+Parts Used: Packing rings (qty: 4)
+Man-Hours: 22
+Standard: OISD-163
+
+============================================================
+
+WORK ORDER: WO-100004
+Equipment: XV-1002
+Type: Preventive Maintenance
+Priority: Medium
+Date: 08-Nov-2023
+Assigned To: Amit Sharma
+Description: High vibration - misalignment detected
+Findings: Inspection of XV-1002 revealed coupling damage - fatigue crack. Equipment was isolated as per PTW-2291. Maintenance carried out as per SOP-MAINT-104.
+Parts Used: Gasket set DN150 PN40 (qty: 1)
+Man-Hours: 24
+Standard: API-610
+
+============================================================

@@ -103,24 +103,26 @@ class HybridRetriever:
         Score = 0.6 * Semantic Similarity + 0.4 * Graph Relevance
 
         Keyword results boost the semantic score.
+
+        Vector and graph scores are used as-is rather than normalized against the
+        batch's own max: FAISS returns cosine similarity in [0, 1] (embeddings are
+        L2-normalized) and graph scores are already fixed to a [0, 1] scale by
+        construction. Dividing by the observed max forced the single best match
+        in *any* batch — however weak — to score exactly 1.0, so an off-topic
+        query with no good matches looked identical to a great match. BM25 has
+        no fixed scale, so it's the one score still normalized per-batch.
         """
         scores: dict[str, float] = {}
         result_map: dict[str, RetrievalResult] = {}
 
-        # Normalize vector scores to [0, 1]
-        max_vector_score = max((r.score for r in vector_results), default=1.0) or 1.0
         for result in vector_results:
             key = result.chunk_id
-            normalized_score = result.score / max_vector_score
-            scores[key] = self.semantic_weight * normalized_score
+            scores[key] = self.semantic_weight * max(result.score, 0.0)
             result_map[key] = result
 
-        # Normalize graph scores and add graph weight
-        max_graph_score = max((r.score for r in graph_results), default=1.0) or 1.0
         for result in graph_results:
             key = result.chunk_id
-            normalized_score = result.score / max_graph_score
-            graph_contribution = self.graph_weight * normalized_score
+            graph_contribution = self.graph_weight * max(result.score, 0.0)
             scores[key] = scores.get(key, 0) + graph_contribution
             if key not in result_map:
                 result_map[key] = result
@@ -137,8 +139,13 @@ class HybridRetriever:
                 if key not in result_map:
                     result_map[key] = result
 
-        # Sort by final weighted score
-        sorted_keys = sorted(scores.keys(), key=lambda x: scores[x], reverse=True)
+        # Drop anything that didn't clear the relevance floor — better to return
+        # nothing than to hand the LLM the "best" of an irrelevant candidate pool.
+        sorted_keys = sorted(
+            (k for k, s in scores.items() if s >= settings.min_relevance_score),
+            key=lambda x: scores[x],
+            reverse=True,
+        )
 
         # Build final results
         final_results = []
@@ -220,11 +227,12 @@ class HybridRetriever:
             nodes = await self.neo4j.search_nodes(term, limit=5)
             for node in nodes:
                 props = node.get("props", {})
+                label = node.get("label", "Node")
                 results.append(RetrievalResult(
                     chunk_id=f"graph_{term}_{len(results)}",
                     document_id="knowledge_graph",
                     filename=props.get("filename", "Knowledge Graph"),
-                    content=str(props),
+                    content=self._format_node_props(label, props),
                     page_number=None,
                     score=0.7,
                     source_type="graph",
@@ -267,38 +275,6 @@ class HybridRetriever:
             self._bm25_index = BM25Okapi(tokenized_corpus)
             logger.info("BM25 index updated", documents=len(documents))
 
-    def _reciprocal_rank_fusion(
-        self, result_lists: list[list[RetrievalResult]], k: int = 60
-    ) -> list[RetrievalResult]:
-        """
-        Fuse multiple ranked lists using Reciprocal Rank Fusion.
-        RRF score = sum(1 / (k + rank_i)) for each list where the doc appears.
-        """
-        scores: dict[str, float] = {}
-        result_map: dict[str, RetrievalResult] = {}
-
-        for result_list in result_lists:
-            for rank, result in enumerate(result_list):
-                key = result.chunk_id
-                rrf_score = 1.0 / (k + rank + 1)
-                scores[key] = scores.get(key, 0) + rrf_score
-
-                # Keep the result with highest individual score
-                if key not in result_map or result.score > result_map[key].score:
-                    result_map[key] = result
-
-        # Sort by fused score
-        sorted_keys = sorted(scores.keys(), key=lambda x: scores[x], reverse=True)
-
-        # Update scores in results
-        fused_results = []
-        for key in sorted_keys:
-            result = result_map[key]
-            result.score = scores[key]
-            fused_results.append(result)
-
-        return fused_results
-
     def _format_graph_context(self, equipment_tag: str, context: dict) -> str:
         """Format knowledge graph context into readable text."""
         parts = [f"Equipment: {equipment_tag}"]
@@ -324,6 +300,14 @@ class HybridRetriever:
             parts.append(f"Inspections ({len(inspections)}): {inspections[:3]}")
 
         return "\n".join(parts)
+
+    def _format_node_props(self, label: str, props: dict) -> str:
+        """Format a raw Neo4j node's properties into readable text for LLM context,
+        instead of a Python dict repr (curly braces, quotes) that reads as noise."""
+        if not props:
+            return f"{label}: (no properties)"
+        fields = "; ".join(f"{k}: {v}" for k, v in props.items() if v not in (None, ""))
+        return f"{label} — {fields}" if fields else f"{label}: (no properties)"
 
     def _extract_search_terms(self, query: str) -> list[str]:
         """Extract meaningful search terms from a natural language query."""

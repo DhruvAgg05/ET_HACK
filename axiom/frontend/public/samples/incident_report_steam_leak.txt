@@ -1,0 +1,81 @@
+INCIDENT REPORT - IR-2024-0847
+
+Date of Incident: 15-Mar-2024
+Time: 14:35 IST
+Location: Crude Distillation Unit (CDU-1), Gujarat Refinery Complex
+Reported By: Rajesh Kumar (Shift Supervisor)
+Investigation Lead: Priya Mehta (HSE Manager)
+
+1. INCIDENT SUMMARY
+
+On 15-Mar-2024 at approximately 14:35 hours, a high-pressure steam leak was detected on the overhead condenser system of equipment E-301A in the Crude Distillation Unit. The leak originated from a corroded flange joint on the 6-inch steam line connecting the heat exchanger to the overhead accumulator V-302.
+
+The area was immediately evacuated per SOP-EM-001 (Emergency Evacuation Procedure). No personnel injuries were reported. The unit was brought to a safe shutdown within 45 minutes following procedure SOP-SD-015 (Emergency Shutdown - CDU).
+
+2. EQUIPMENT INVOLVED
+
+Primary Equipment:
+- E-301A: Shell and Tube Heat Exchanger (Overhead Condenser)
+- V-302: Overhead Accumulator Vessel
+- P-301A: Overhead Reflux Pump
+- PSV-3001: Pressure Safety Valve (set at 12.5 kg/cm2)
+
+Associated Instrumentation:
+- PT-3001: Pressure Transmitter (reading 11.8 kg/cm2 at time of incident)
+- TT-3005: Temperature Transmitter (reading 142 deg C)
+- FT-3002: Flow Transmitter (overhead vapor line)
+- LT-3003: Level Transmitter on V-302
+
+3. ROOT CAUSE ANALYSIS
+
+The investigation team, led by Priya Mehta, determined the following root causes:
+
+Primary Cause: Corrosion Under Insulation (CUI) on the 6-inch carbon steel flange joint. The flange gasket had degraded due to prolonged exposure to moisture ingress beneath thermal insulation. Wall thickness measurements showed reduction from original 7.1mm to 2.3mm (67% metal loss).
+
+Contributing Factors:
+- Last inspection of this section was conducted on 22-Aug-2022 (18 months overdue per OISD-154 guidelines which mandate annual inspection)
+- The insulation cladding had visible damage reported in WO-2023-1156 but repair was deferred due to turnaround scheduling
+- Operating temperature cycling between 85-145 deg C created condensation conditions favorable for CUI
+
+4. REGULATORY COMPLIANCE
+
+The following regulations and standards are applicable:
+- OISD-154: Safety Inspection of Refinery Equipment
+- API-510: Pressure Vessel Inspection Code
+- API-570: Piping Inspection Code
+- IS-2825: Code for Unfired Pressure Vessels
+- Factory Act 1948, Section 28: Dangerous Operations
+
+The incident constitutes a near-miss under OISD-145 (Safety Audit) classification. A report has been filed with the Chief Inspector of Factories, Gujarat.
+
+5. CORRECTIVE ACTIONS
+
+Immediate Actions (Completed):
+- Isolated E-301A and depressurized the system
+- Replaced corroded flange section with new ASTM A105 flange
+- Installed new spiral wound gasket (SS-316/Graphite)
+- Conducted hydrostatic test at 18.75 kg/cm2 per API-510
+
+Short-Term Actions (Within 30 days):
+- Complete CUI survey of all equipment in CDU-1 overhead section
+- Update inspection schedule for all flanged connections per OISD-154
+- Repair insulation cladding on E-301A, E-301B, and V-302
+
+Long-Term Actions (Within 90 days):
+- Implement risk-based inspection (RBI) program per API-580/581
+- Install corrosion monitoring probes on critical piping circuits
+- Upgrade insulation material to hydrophobic type on overhead system
+- Training program for all maintenance personnel on CUI identification
+
+6. PERSONNEL INVOLVED
+
+- Rajesh Kumar (Shift Supervisor) - First responder, initiated evacuation
+- Anil Reddy (Panel Operator) - Executed emergency shutdown sequence
+- Suresh Patel (Maintenance Engineer) - Led repair activities
+- Priya Mehta (HSE Manager) - Investigation lead
+- Dr. Vikram Singh (Plant Manager) - Approved corrective action plan
+- Amit Sharma (Inspection Engineer) - Conducted wall thickness measurements
+
+Report Classification: NEAR-MISS (Category B)
+Follow-up Review Date: 15-Apr-2024
+Distribution: Plant Manager, HSE Department, Inspection Department, Operations

@@ -4,26 +4,9 @@ Uses FREE local sentence-transformers for embeddings (no API costs).
 Stores vectors in FAISS for offline semantic search.
 """
 
-# Disable SSL verification globally for HuggingFace model downloads
-# (required on corporate networks with self-signed certificates)
+import asyncio
+import contextlib
 import ssl
-import os
-os.environ["HF_HUB_DISABLE_SSL_VERIFY"] = "1"
-os.environ["CURL_CA_BUNDLE"] = ""
-try:
-    ssl._create_default_https_context = ssl._create_unverified_context
-except AttributeError:
-    pass
-try:
-    import httpx
-    _orig_client_init = httpx.Client.__init__
-    def _patched_client_init(self, *args, **kwargs):
-        kwargs.setdefault("verify", False)
-        _orig_client_init(self, *args, **kwargs)
-    httpx.Client.__init__ = _patched_client_init
-except Exception:
-    pass
-
 import os
 import json
 import numpy as np
@@ -41,6 +24,41 @@ from app.models.schemas import DocumentChunk
 
 logger = structlog.get_logger()
 
+@contextlib.contextmanager
+def _unverified_ssl_for_hf_download():
+    """
+    Temporarily disable TLS verification, scoped to the HuggingFace Hub model
+    download only. Some corporate networks MITM outbound TLS with a
+    self-signed cert that isn't in the system trust store, which breaks that
+    one download. This must stay scoped and reverted — a process-wide,
+    permanent patch would silently disable certificate checking for every
+    other outbound call too, including the Ollama/OpenAI/Groq requests that
+    carry API keys.
+    """
+    orig_https_context = ssl._create_default_https_context
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+    orig_client_init = None
+    try:
+        import httpx
+        orig_client_init = httpx.Client.__init__
+
+        def _patched_init(self, *args, **kwargs):
+            kwargs.setdefault("verify", False)
+            orig_client_init(self, *args, **kwargs)
+
+        httpx.Client.__init__ = _patched_init
+    except Exception:
+        pass
+
+    try:
+        yield
+    finally:
+        ssl._create_default_https_context = orig_https_context
+        if orig_client_init is not None:
+            import httpx
+            httpx.Client.__init__ = orig_client_init
+
 class EmbeddingEngine:
     """
     Embedding generation using FREE local models.
@@ -55,7 +73,8 @@ class EmbeddingEngine:
         if self._st_model is None:
             try:
                 from sentence_transformers import SentenceTransformer
-                self._st_model = SentenceTransformer(settings.local_embedding_model)
+                with _unverified_ssl_for_hf_download():
+                    self._st_model = SentenceTransformer(settings.local_embedding_model)
                 logger.info(
                     "Loaded local embedding model",
                     model=settings.local_embedding_model,
@@ -67,9 +86,14 @@ class EmbeddingEngine:
     async def generate_embedding(self, text: str) -> list[float]:
         """Generate embedding using best available FREE method."""
         # Method 1: Local sentence-transformers (preferred — fast, free, no network)
+        # The model's own tokenizer truncates to its max_seq_length internally;
+        # cutting the string ourselves at a fixed char count discarded content
+        # that would otherwise have fit within the model's real token budget.
         model = self._load_sentence_transformer()
         if model is not None:
-            embedding = model.encode(text[:512], normalize_embeddings=True)
+            # model.encode is synchronous CPU work — off the event loop so a
+            # query embedding doesn't stall every other in-flight request.
+            embedding = await asyncio.to_thread(model.encode, text, normalize_embeddings=True)
             return embedding.tolist()
 
         # Method 2: Ollama embeddings (free, local, needs Ollama running)
@@ -94,8 +118,9 @@ class EmbeddingEngine:
         """Generate embeddings for multiple texts in batch."""
         model = self._load_sentence_transformer()
         if model is not None:
-            truncated = [t[:512] for t in texts]
-            embeddings = model.encode(truncated, normalize_embeddings=True, batch_size=32)
+            embeddings = await asyncio.to_thread(
+                model.encode, texts, normalize_embeddings=True, batch_size=32
+            )
             return [e.tolist() for e in embeddings]
 
         # Fallback: one by one
@@ -129,9 +154,35 @@ class FAISSService:
 
         if self._index_file.exists() and self._metadata_file.exists():
             # Load existing index
-            self.index = faiss.read_index(str(self._index_file))
+            loaded_index = faiss.read_index(str(self._index_file))
+
+            if loaded_index.d != settings.embedding_dimension:
+                # The embedding model was changed since this index was built —
+                # loading it anyway would let queries run against vectors from a
+                # different vector space and return silently meaningless results.
+                logger.error(
+                    "FAISS index dimension mismatch — refusing to load stale index. "
+                    "Delete the index/metadata files to rebuild for the current model, "
+                    "or restore the embedding model that matches this index.",
+                    index_dimension=loaded_index.d,
+                    configured_dimension=settings.embedding_dimension,
+                )
+                self.index = faiss.IndexFlatIP(settings.embedding_dimension)
+                self._metadata = []
+                return
+
+            self.index = loaded_index
             with open(self._metadata_file, "r", encoding="utf-8") as f:
                 self._metadata = json.load(f)
+
+            if self.index.ntotal != len(self._metadata):
+                logger.warning(
+                    "FAISS index/metadata count mismatch — a prior write was likely "
+                    "interrupted. Search results may be misaligned.",
+                    vectors=self.index.ntotal,
+                    metadata_entries=len(self._metadata),
+                )
+
             logger.info(
                 "FAISS index loaded from disk",
                 vectors=self.index.ntotal,
@@ -144,12 +195,26 @@ class FAISSService:
             logger.info("New FAISS index created", dimension=settings.embedding_dimension)
 
     def _save_index(self):
-        """Persist FAISS index and metadata to disk."""
+        """
+        Persist FAISS index and metadata to disk atomically.
+
+        Writes to temp files then renames into place, so a crash mid-write can
+        never leave index.faiss and metadata.json disagreeing about vector count
+        (os.replace is atomic on both POSIX and Windows).
+        """
         if self.index is None:
             return
-        faiss.write_index(self.index, str(self._index_file))
-        with open(self._metadata_file, "w", encoding="utf-8") as f:
+
+        tmp_index = self._index_file.with_suffix(".faiss.tmp")
+        tmp_metadata = self._metadata_file.with_suffix(".json.tmp")
+
+        faiss.write_index(self.index, str(tmp_index))
+        with open(tmp_metadata, "w", encoding="utf-8") as f:
             json.dump(self._metadata, f, ensure_ascii=False)
+
+        os.replace(tmp_index, self._index_file)
+        os.replace(tmp_metadata, self._metadata_file)
+
         logger.debug("FAISS index saved to disk", vectors=self.index.ntotal)
 
     async def generate_embedding(self, text: str) -> list[float]:

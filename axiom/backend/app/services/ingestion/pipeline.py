@@ -15,6 +15,7 @@ Pipeline phases (per GraphRAG spec):
 10. Hybrid Retrieval ready
 """
 
+import asyncio
 import uuid
 import fitz
 from pathlib import Path
@@ -77,32 +78,34 @@ class IngestionPipeline:
         file_type = self._detect_file_type(file_path)
 
         # Phase 2: Parse document (extract text, tables, images)
-        parsed = self._parse_document(file_path, file_type)
+        # Parsing and OCR are synchronous, CPU-bound work — running them inline
+        # in this async method would stall the event loop (and every other
+        # in-flight request) for the duration of a large PDF or scanned-page OCR.
+        parsed = await asyncio.to_thread(self._parse_document, file_path, file_type)
 
         # Phase 3: OCR fallback for pages with no/little text
-        raw_text = self._extract_text_with_ocr_fallback(parsed, file_path)
+        raw_text, page_texts = await asyncio.to_thread(
+            self._extract_text_with_ocr_fallback, parsed, file_path
+        )
 
         # Phase 4: Clean and normalize text
         cleaned_text = self.text_cleaner.clean(raw_text)
 
         # Phase 5: Build structured document representation
-        # Clean individual pages for page-level structure
-        cleaned_page_texts = {}
-        for page in parsed.pages:
-            page_raw = page.text
-            if self.ocr_engine.needs_ocr(page_raw):
-                # Already OCR'd in phase 3, use the cleaned version
-                cleaned_page_texts[page.page_number] = self.text_cleaner.clean(page_raw)
-            else:
-                cleaned_page_texts[page.page_number] = self.text_cleaner.clean(page_raw)
+        # Use the OCR-resolved per-page text (not the original scanned page.text,
+        # which is blank/garbage for pages that needed OCR).
+        cleaned_page_texts = {
+            page_number: self.text_cleaner.clean(text)
+            for page_number, text in page_texts.items()
+        }
 
         structured_doc = self.structurer.structure(parsed, cleaned_page_texts)
 
         # Phase 6: Classify document category
         category = self.classifier.classify(cleaned_text, filename)
 
-        # Phase 7: Extract entities (spaCy + patterns)
-        entities = self._extract_entities(cleaned_text, parsed)
+        # Phase 7: Extract entities (spaCy + patterns) — also CPU-bound
+        entities = await asyncio.to_thread(self._extract_entities, cleaned_text, parsed)
 
         # Phase 8: Extract relationships (triples with confidence)
         relationships = self.relationship_extractor.extract(cleaned_text, entities)
@@ -231,11 +234,20 @@ class IngestionPipeline:
 
     def _extract_text_with_ocr_fallback(
         self, parsed: ParsedDocument, file_path: Path
-    ) -> str:
-        """Extract text from all pages, using OCR when direct extraction fails."""
+    ) -> tuple[str, dict[int, str]]:
+        """
+        Extract text from all pages, using OCR when direct extraction fails.
+
+        Returns (full_text, page_texts) — page_texts maps page_number to the
+        resolved text for that page (OCR output where OCR ran), so downstream
+        page-level consumers (the structurer) see the same text as full_text.
+        """
         all_text_parts = []
+        page_texts: dict[int, str] = {}
 
         for page in parsed.pages:
+            page_text = page.text
+
             if page.has_text and not self.ocr_engine.needs_ocr(page.text):
                 # Direct text extraction worked
                 all_text_parts.append(page.text)
@@ -252,18 +264,22 @@ class IngestionPipeline:
                         ocr_result = self.ocr_engine.ocr_pdf_page_image(
                             image_bytes, page.page_number
                         )
-                        all_text_parts.append(ocr_result.text)
+                        page_text = ocr_result.text
+                        all_text_parts.append(page_text)
                     elif page.images:
                         # Use first image from the page
                         ocr_result = self.ocr_engine.ocr_image_bytes(
                             page.images[0], page.page_number
                         )
-                        all_text_parts.append(ocr_result.text)
+                        page_text = ocr_result.text
+                        all_text_parts.append(page_text)
                     else:
                         all_text_parts.append(page.text)
                 except Exception as e:
                     logger.error("OCR failed", page=page.page_number, error=str(e))
                     all_text_parts.append(page.text)
+
+            page_texts[page.page_number] = page_text
 
             # Also include table text
             for table in page.tables:
@@ -272,7 +288,7 @@ class IngestionPipeline:
                     if row_text.strip():
                         all_text_parts.append(row_text)
 
-        return "\n\n".join(all_text_parts)
+        return "\n\n".join(all_text_parts), page_texts
 
     def _extract_entities(self, full_text: str, parsed: ParsedDocument) -> list:
         """Extract entities from the full document text."""
@@ -298,61 +314,6 @@ class IngestionPipeline:
 
         return all_entities
 
-    def _create_chunks(
-        self,
-        full_text: str,
-        document_id: str,
-        parsed: ParsedDocument,
-        filename: str,
-        category: DocumentCategory,
-    ) -> list[DocumentChunk]:
-        """Create text chunks for vector storage (legacy method)."""
-        chunks = []
-
-        for page in parsed.pages:
-            page_text = page.text.strip()
-            if not page_text:
-                continue
-
-            page_chunks = self.chunker.chunk_text(
-                text=page_text,
-                document_id=document_id,
-                page_number=page.page_number,
-                metadata={
-                    "filename": filename,
-                    "category": category.value,
-                    "page": page.page_number,
-                },
-            )
-
-            for chunk in page_chunks:
-                chunks.append(DocumentChunk(
-                    chunk_id=chunk.chunk_id,
-                    document_id=document_id,
-                    content=chunk.content,
-                    page_number=chunk.page_number,
-                    chunk_index=chunk.chunk_index,
-                    metadata=chunk.metadata,
-                ))
-
-        if not chunks and full_text.strip():
-            full_chunks = self.chunker.chunk_text(
-                text=full_text,
-                document_id=document_id,
-                metadata={"filename": filename, "category": category.value},
-            )
-            for chunk in full_chunks:
-                chunks.append(DocumentChunk(
-                    chunk_id=chunk.chunk_id,
-                    document_id=document_id,
-                    content=chunk.content,
-                    page_number=chunk.page_number,
-                    chunk_index=chunk.chunk_index,
-                    metadata=chunk.metadata,
-                ))
-
-        return chunks
-
     def _create_chunks_from_structure(
         self,
         structured_doc,
@@ -367,6 +328,7 @@ class IngestionPipeline:
         from app.services.ingestion.document_structurer import StructuredDocument
 
         chunks = []
+        next_index = 0
 
         for page in structured_doc.pages:
             for section in page.sections:
@@ -394,7 +356,9 @@ class IngestionPipeline:
                         "page": page.page,
                         "section": section.heading,
                     },
+                    start_index=next_index,
                 )
+                next_index += len(section_chunks)
 
                 for chunk in section_chunks:
                     chunks.append(DocumentChunk(

@@ -7,6 +7,7 @@ from app.config import settings
 from app.routers import ingest, query, graph, agents
 from app.services.knowledge_graph.neo4j_client import Neo4jClient
 from app.services.vectorstore.faiss_service import FAISSService
+from app.services.rag.retriever import HybridRetriever
 
 logger = structlog.get_logger()
 
@@ -25,6 +26,13 @@ async def lifespan(app: FastAPI):
     await faiss_service.initialize()
     app.state.faiss = faiss_service
 
+    # Single shared retriever — holds the BM25 index in memory, which a fresh
+    # HybridRetriever built per-request would never have (update_bm25_index
+    # must be called after ingest to keep it in sync with FAISS).
+    retriever = HybridRetriever(faiss_service=faiss_service, neo4j=neo4j_client)
+    retriever.update_bm25_index(faiss_service.get_all_metadata())
+    app.state.retriever = retriever
+
     logger.info("AXIOM platform ready.")
     yield
 
@@ -42,7 +50,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    # No auth/cookie-based session exists in this app, so there's nothing that
+    # needs allow_credentials — and wildcard origin + credentials is a combo
+    # browsers reject outright (and one you don't want if auth is added later).
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

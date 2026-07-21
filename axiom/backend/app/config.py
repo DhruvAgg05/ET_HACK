@@ -2,11 +2,16 @@ from pydantic_settings import BaseSettings
 from pathlib import Path
 
 class Settings(BaseSettings):
-    # LLM Provider: "ollama" (free local), "openai", or "groq"
-    llm_provider: str = "ollama"
+    # LLM Provider: "openrouter", "ollama" (free local), "openai", or "groq"
+    llm_provider: str = "openrouter"
+
+    # OpenRouter (OpenAI-compatible chat completions, routes to many models)
+    openrouter_api_key: str = ""
+    openrouter_base_url: str = "https://openrouter.ai/api/v1"
+    openrouter_chat_model: str = "openai/gpt-4o-mini"
 
     # Ollama (FREE - local)
-    ollama_base_url: str = "<http://localhost:11434>"
+    ollama_base_url: str = "http://localhost:11434"
     ollama_chat_model: str = "llama3.1:8b"  # or mistral, qwen2.5, phi3, gemma2
     ollama_embedding_model: str = "nomic-embed-text"  # free embedding model
 
@@ -54,6 +59,12 @@ class Settings(BaseSettings):
     # Retrieval scoring weights
     semantic_weight: float = 0.6
     graph_weight: float = 0.4
+
+    # Minimum combined score for a result to be considered relevant at all.
+    # Below this, we'd rather tell the user nothing was found than hand the
+    # LLM (and the citation UI) chunks that only "won" by being the least bad
+    # of an irrelevant candidate pool.
+    min_relevance_score: float = 0.15
 
     class Config:
         env_file = ".env"
