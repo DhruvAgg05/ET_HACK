@@ -1,0 +1,151 @@
+<svg viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif">
+  <defs>
+    <radialGradient id="chunkGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="55%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </radialGradient>
+    <linearGradient id="trackFlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#22d3ee" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow" x="-150%" y="-150%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="300" rx="18" fill="#0a0e17"/>
+  <rect x="0.5" y="0.5" width="1199" height="299" rx="18" fill="none" stroke="#2a3444"/>
+
+  <text x="600" y="40" text-anchor="middle" fill="#e2e8f0" font-size="19" font-weight="600">Ingestion Pipeline — Live Data Flow</text>
+  <text x="600" y="61" text-anchor="middle" fill="#8892a4" font-size="12">One PDF chunk animated end-to-end: upload → parse → clean → structure → chunk → extract → embed → graph</text>
+
+  <!-- base track -->
+  <line x1="90" y1="150" x2="1070" y2="150" stroke="#1a2234" stroke-width="5" stroke-linecap="round"/>
+  <line x1="90" y1="150" x2="1070" y2="150" stroke="#2a3444" stroke-width="1" stroke-linecap="round"/>
+
+  <!-- animated flowing energy dashes -->
+  <line x1="90" y1="150" x2="1070" y2="150" stroke="url(#trackFlow)" stroke-width="5" stroke-linecap="round" stroke-dasharray="26 40" opacity="0.85">
+    <animate attributeName="stroke-dashoffset" from="0" to="-660" dur="3.2s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Nodes -->
+  <!-- 1 PDF -->
+  <g>
+    <circle cx="90" cy="150" r="30" fill="#111827" stroke="#3b82f6" stroke-width="2.5" filter="url(#softGlow)">
+      <animate attributeName="stroke-width" values="4.5;2.5;2.5" dur="8s" begin="0s" repeatCount="indefinite" keyTimes="0;0.05;1" calcMode="linear"/>
+    </circle>
+    <text x="90" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">PDF</text>
+    <text x="90" y="159" text-anchor="middle" fill="#8892a4" font-size="8">upload</text>
+    <text x="90" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Upload</text>
+    <text x="90" y="211" text-anchor="middle" fill="#8892a4" font-size="9">Type detect</text>
+  </g>
+
+  <!-- 2 Parse/OCR -->
+  <g>
+    <circle cx="230" cy="150" r="30" fill="#111827" stroke="#3b82f6" stroke-width="2.5" filter="url(#softGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5;2.5" dur="8s" begin="0s" repeatCount="indefinite" keyTimes="0;0.09;0.143;0.2" calcMode="linear"/>
+    </circle>
+    <text x="230" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">OCR</text>
+    <text x="230" y="159" text-anchor="middle" fill="#8892a4" font-size="8">parse</text>
+    <text x="230" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Parse</text>
+    <text x="230" y="211" text-anchor="middle" fill="#8892a4" font-size="9">PyMuPDF/OCR</text>
+  </g>
+
+  <!-- 3 Clean -->
+  <g>
+    <circle cx="370" cy="150" r="30" fill="#111827" stroke="#3b82f6" stroke-width="2.5" filter="url(#softGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5;2.5" dur="8s" begin="0s" repeatCount="indefinite" keyTimes="0;0.23;0.286;0.34" calcMode="linear"/>
+    </circle>
+    <text x="370" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">TXT</text>
+    <text x="370" y="159" text-anchor="middle" fill="#8892a4" font-size="8">clean</text>
+    <text x="370" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Clean</text>
+    <text x="370" y="211" text-anchor="middle" fill="#8892a4" font-size="9">+ Structure</text>
+  </g>
+
+  <!-- 4 Classify -->
+  <g>
+    <circle cx="510" cy="150" r="30" fill="#111827" stroke="#3b82f6" stroke-width="2.5" filter="url(#softGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5;2.5" dur="8s" begin="0s" repeatCount="indefinite" keyTimes="0;0.37;0.429;0.48" calcMode="linear"/>
+    </circle>
+    <text x="510" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">CAT</text>
+    <text x="510" y="159" text-anchor="middle" fill="#8892a4" font-size="8">classify</text>
+    <text x="510" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Classify</text>
+    <text x="510" y="211" text-anchor="middle" fill="#8892a4" font-size="9">7 categories</text>
+  </g>
+
+  <!-- 5 Chunk -->
+  <g>
+    <circle cx="650" cy="150" r="30" fill="#111827" stroke="#f59e0b" stroke-width="2.5" filter="url(#softGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5;2.5" dur="8s" begin="0s" repeatCount="indefinite" keyTimes="0;0.51;0.571;0.62" calcMode="linear"/>
+    </circle>
+    <text x="650" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">CHK</text>
+    <text x="650" y="159" text-anchor="middle" fill="#8892a4" font-size="8">500tok</text>
+    <text x="650" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Chunk</text>
+    <text x="650" y="211" text-anchor="middle" fill="#8892a4" font-size="9">500 / 70 overlap</text>
+  </g>
+
+  <!-- 6 Extract -->
+  <g>
+    <circle cx="790" cy="150" r="30" fill="#111827" stroke="#f59e0b" stroke-width="2.5" filter="url(#softGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5;2.5" dur="8s" begin="0s" repeatCount="indefinite" keyTimes="0;0.66;0.714;0.76" calcMode="linear"/>
+    </circle>
+    <text x="790" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">NER</text>
+    <text x="790" y="159" text-anchor="middle" fill="#8892a4" font-size="8">extract</text>
+    <text x="790" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Entities</text>
+    <text x="790" y="211" text-anchor="middle" fill="#8892a4" font-size="9">+ Relations</text>
+  </g>
+
+  <!-- 7 Embed/FAISS -->
+  <g>
+    <circle cx="930" cy="150" r="30" fill="#111827" stroke="#10b981" stroke-width="2.5" filter="url(#softGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5;2.5" dur="8s" begin="0s" repeatCount="indefinite" keyTimes="0;0.8;0.857;0.9" calcMode="linear"/>
+    </circle>
+    <text x="930" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">VEC</text>
+    <text x="930" y="159" text-anchor="middle" fill="#8892a4" font-size="8">384d</text>
+    <text x="930" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Embed</text>
+    <text x="930" y="211" text-anchor="middle" fill="#8892a4" font-size="9">FAISS index</text>
+  </g>
+
+  <!-- 8 Neo4j Graph -->
+  <g>
+    <circle cx="1070" cy="150" r="30" fill="#111827" stroke="#10b981" stroke-width="2.5" filter="url(#softGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5" dur="8s" begin="0s" repeatCount="indefinite" keyTimes="0;0.94;1" calcMode="linear"/>
+      <animate attributeName="r" values="30;30;34;30" dur="8s" begin="0s" repeatCount="indefinite" keyTimes="0;0.94;0.97;1" calcMode="linear"/>
+    </circle>
+    <text x="1070" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">GDB</text>
+    <text x="1070" y="159" text-anchor="middle" fill="#8892a4" font-size="8">graph</text>
+    <text x="1070" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Neo4j</text>
+    <text x="1070" y="211" text-anchor="middle" fill="#8892a4" font-size="9">Doc→Page→Chunk</text>
+  </g>
+
+  <!-- comet tail echoes -->
+  <circle r="7" fill="#22d3ee" opacity="0.18" filter="url(#glow)">
+    <animateMotion dur="8s" begin="-0.4s" repeatCount="indefinite" keyPoints="0;0.1428;0.2857;0.4285;0.5714;0.7142;0.857;1" keyTimes="0;0.1428;0.2857;0.4285;0.5714;0.7142;0.857;1" calcMode="linear" path="M90,150 L230,150 L370,150 L510,150 L650,150 L790,150 L930,150 L1070,150"/>
+  </circle>
+  <circle r="8" fill="#22d3ee" opacity="0.35" filter="url(#glow)">
+    <animateMotion dur="8s" begin="-0.2s" repeatCount="indefinite" keyPoints="0;0.1428;0.2857;0.4285;0.5714;0.7142;0.857;1" keyTimes="0;0.1428;0.2857;0.4285;0.5714;0.7142;0.857;1" calcMode="linear" path="M90,150 L230,150 L370,150 L510,150 L650,150 L790,150 L930,150 L1070,150"/>
+  </circle>
+
+  <!-- main animated data chunk -->
+  <g filter="url(#glow)">
+    <circle r="11" fill="url(#chunkGrad)">
+      <animateMotion dur="8s" begin="0s" repeatCount="indefinite" keyPoints="0;0.1428;0.2857;0.4285;0.5714;0.7142;0.857;1" keyTimes="0;0.1428;0.2857;0.4285;0.5714;0.7142;0.857;1" calcMode="linear" path="M90,150 L230,150 L370,150 L510,150 L650,150 L790,150 L930,150 L1070,150"/>
+      <animate attributeName="r" values="9;12;9" dur="1s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <text x="600" y="270" text-anchor="middle" fill="#8892a4" font-size="10">Rendered from the real 11-step backend pipeline (app/services/ingestion/pipeline.py) via Server-Sent Events</text>
+</svg>

@@ -1,0 +1,145 @@
+<svg viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif">
+  <defs>
+    <radialGradient id="qChunkGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="55%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </radialGradient>
+    <radialGradient id="ansChunkGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6ee7b7"/>
+      <stop offset="55%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </radialGradient>
+    <linearGradient id="qTrackFlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#f59e0b" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="qGlow" x="-150%" y="-150%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="qSoftGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="300" rx="18" fill="#0a0e17"/>
+  <rect x="0.5" y="0.5" width="1199" height="299" rx="18" fill="none" stroke="#2a3444"/>
+
+  <text x="600" y="40" text-anchor="middle" fill="#e2e8f0" font-size="19" font-weight="600">Query &amp; Retrieval — Live Data Flow</text>
+  <text x="600" y="61" text-anchor="middle" fill="#8892a4" font-size="12">A question is embedded, matched, expanded, re-ranked and answered with cited sources</text>
+
+  <!-- base track -->
+  <line x1="90" y1="150" x2="1050" y2="150" stroke="#1a2234" stroke-width="5" stroke-linecap="round"/>
+  <line x1="90" y1="150" x2="1050" y2="150" stroke="#2a3444" stroke-width="1" stroke-linecap="round"/>
+
+  <!-- animated flowing energy dashes -->
+  <line x1="90" y1="150" x2="1050" y2="150" stroke="url(#qTrackFlow)" stroke-width="5" stroke-linecap="round" stroke-dasharray="24 38" opacity="0.85">
+    <animate attributeName="stroke-dashoffset" from="0" to="-620" dur="3s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- 1 Query -->
+  <g>
+    <circle cx="90" cy="150" r="30" fill="#111827" stroke="#f59e0b" stroke-width="2.5" filter="url(#qSoftGlow)">
+      <animate attributeName="stroke-width" values="4.5;2.5;2.5" dur="7s" begin="0s" repeatCount="indefinite" keyTimes="0;0.06;1" calcMode="linear"/>
+    </circle>
+    <text x="90" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">Q</text>
+    <text x="90" y="159" text-anchor="middle" fill="#8892a4" font-size="8">ask</text>
+    <text x="90" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Question</text>
+    <text x="90" y="211" text-anchor="middle" fill="#8892a4" font-size="9">Tag / term extract</text>
+  </g>
+
+  <!-- 2 Embed -->
+  <g>
+    <circle cx="250" cy="150" r="30" fill="#111827" stroke="#f59e0b" stroke-width="2.5" filter="url(#qSoftGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5;2.5" dur="7s" begin="0s" repeatCount="indefinite" keyTimes="0;0.11;0.1667;0.22" calcMode="linear"/>
+    </circle>
+    <text x="250" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">VEC</text>
+    <text x="250" y="159" text-anchor="middle" fill="#8892a4" font-size="8">embed</text>
+    <text x="250" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Embed</text>
+    <text x="250" y="211" text-anchor="middle" fill="#8892a4" font-size="9">MiniLM-L6-v2</text>
+  </g>
+
+  <!-- 3 FAISS -->
+  <g>
+    <circle cx="410" cy="150" r="30" fill="#111827" stroke="#3b82f6" stroke-width="2.5" filter="url(#qSoftGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5;2.5" dur="7s" begin="0s" repeatCount="indefinite" keyTimes="0;0.28;0.333;0.39" calcMode="linear"/>
+    </circle>
+    <text x="410" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">ANN</text>
+    <text x="410" y="159" text-anchor="middle" fill="#8892a4" font-size="8">top-k</text>
+    <text x="410" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">FAISS Search</text>
+    <text x="410" y="211" text-anchor="middle" fill="#8892a4" font-size="9">Semantic match</text>
+  </g>
+
+  <!-- 4 Neo4j expansion -->
+  <g>
+    <circle cx="570" cy="150" r="30" fill="#111827" stroke="#3b82f6" stroke-width="2.5" filter="url(#qSoftGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5;2.5" dur="7s" begin="0s" repeatCount="indefinite" keyTimes="0;0.44;0.5;0.55" calcMode="linear"/>
+    </circle>
+    <text x="570" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">GDB</text>
+    <text x="570" y="159" text-anchor="middle" fill="#8892a4" font-size="8">expand</text>
+    <text x="570" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Graph Expand</text>
+    <text x="570" y="211" text-anchor="middle" fill="#8892a4" font-size="9">Entity neighbors</text>
+  </g>
+
+  <!-- 5 Re-rank -->
+  <g>
+    <circle cx="730" cy="150" r="30" fill="#111827" stroke="#a78bfa" stroke-width="2.5" filter="url(#qSoftGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5;2.5" dur="7s" begin="0s" repeatCount="indefinite" keyTimes="0;0.61;0.667;0.72" calcMode="linear"/>
+    </circle>
+    <text x="730" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">0.6</text>
+    <text x="730" y="159" text-anchor="middle" fill="#8892a4" font-size="8">/0.4</text>
+    <text x="730" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Re-Rank</text>
+    <text x="730" y="211" text-anchor="middle" fill="#8892a4" font-size="9">Hybrid score</text>
+  </g>
+
+  <!-- 6 Context assembly -->
+  <g>
+    <circle cx="890" cy="150" r="30" fill="#111827" stroke="#a78bfa" stroke-width="2.5" filter="url(#qSoftGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5;2.5" dur="7s" begin="0s" repeatCount="indefinite" keyTimes="0;0.78;0.833;0.89" calcMode="linear"/>
+    </circle>
+    <text x="890" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">CTX</text>
+    <text x="890" y="159" text-anchor="middle" fill="#8892a4" font-size="8">[1][2]</text>
+    <text x="890" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Context</text>
+    <text x="890" y="211" text-anchor="middle" fill="#8892a4" font-size="9">Cited sources</text>
+  </g>
+
+  <!-- 7 LLM answer -->
+  <g>
+    <circle cx="1050" cy="150" r="30" fill="#111827" stroke="#10b981" stroke-width="2.5" filter="url(#qSoftGlow)">
+      <animate attributeName="stroke-width" values="2.5;2.5;4.5" dur="7s" begin="0s" repeatCount="indefinite" keyTimes="0;0.94;1" calcMode="linear"/>
+      <animate attributeName="r" values="30;30;34;30" dur="7s" begin="0s" repeatCount="indefinite" keyTimes="0;0.94;0.97;1" calcMode="linear"/>
+    </circle>
+    <text x="1050" y="146" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">LLM</text>
+    <text x="1050" y="159" text-anchor="middle" fill="#8892a4" font-size="8">answer</text>
+    <text x="1050" y="196" text-anchor="middle" fill="#e2e8f0" font-size="11">Answer</text>
+    <text x="1050" y="211" text-anchor="middle" fill="#8892a4" font-size="9">Ollama / OpenRouter</text>
+  </g>
+
+  <!-- comet tail echoes -->
+  <circle r="7" fill="#f59e0b" opacity="0.18" filter="url(#qGlow)">
+    <animateMotion dur="7s" begin="-0.35s" repeatCount="indefinite" keyPoints="0;0.1667;0.333;0.5;0.6667;0.833;1" keyTimes="0;0.1667;0.333;0.5;0.6667;0.833;1" calcMode="linear" path="M90,150 L250,150 L410,150 L570,150 L730,150 L890,150 L1050,150"/>
+  </circle>
+  <circle r="8" fill="#f59e0b" opacity="0.32" filter="url(#qGlow)">
+    <animateMotion dur="7s" begin="-0.18s" repeatCount="indefinite" keyPoints="0;0.1667;0.333;0.5;0.6667;0.833;1" keyTimes="0;0.1667;0.333;0.5;0.6667;0.833;1" calcMode="linear" path="M90,150 L250,150 L410,150 L570,150 L730,150 L890,150 L1050,150"/>
+  </circle>
+
+  <!-- main animated query token: amber while retrieving, turns green once it becomes a cited answer -->
+  <g filter="url(#qGlow)">
+    <circle r="11" fill="url(#qChunkGrad)">
+      <animateMotion dur="7s" begin="0s" repeatCount="indefinite" keyPoints="0;0.1667;0.333;0.5;0.6667;0.833;1" keyTimes="0;0.1667;0.333;0.5;0.6667;0.833;1" calcMode="linear" path="M90,150 L250,150 L410,150 L570,150 L730,150 L890,150 L1050,150"/>
+      <animate attributeName="r" values="9;12;9" dur="1s" repeatCount="indefinite"/>
+      <animate attributeName="fill" values="url(#qChunkGrad);url(#qChunkGrad);url(#ansChunkGrad)" keyTimes="0;0.75;0.94" dur="7s" begin="0s" repeatCount="indefinite" calcMode="discrete"/>
+    </circle>
+  </g>
+
+  <text x="600" y="270" text-anchor="middle" fill="#8892a4" font-size="10">Rendered from the real 7-step retrieval pipeline (app/routers/query.py, retriever.py, generator.py) via Server-Sent Events</text>
+</svg>
