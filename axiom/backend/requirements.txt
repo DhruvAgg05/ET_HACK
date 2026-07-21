@@ -44,10 +44,6 @@ spacy>=3.8,<4
 # Search
 rank-bm25>=0.2.2,<1
 
-# Async
-celery[redis]>=5.4,<6
-redis>=5,<7
-
 # Utilities
 tenacity>=8.1,<9
 structlog>=24.4,<26

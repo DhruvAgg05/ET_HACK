@@ -24,12 +24,6 @@ services:
     volumes:
       - neo4j_data:/data
 
-  # FREE: Message broker / cache
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-
   backend:
     build:
       context: ./backend
@@ -40,7 +34,6 @@ services:
       - .env
     depends_on:
       - neo4j
-      - redis
       - ollama
     volumes:
       - ./data:/app/data

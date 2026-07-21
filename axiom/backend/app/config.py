@@ -42,9 +42,6 @@ class Settings(BaseSettings):
     qdrant_port: int = 6333
     qdrant_collection: str = "axiom_documents"
 
-    # Redis (FREE - open source)
-    redis_url: str = "redis://localhost:6379/0"
-
     # App
     upload_dir: str = "./data/uploads"
     log_level: str = "INFO"
