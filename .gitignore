@@ -1,0 +1,15 @@
+node_modules/
+.venv/
+.next/
+__pycache__/
+*.py[cod]
+*.log
+.env
+data/faiss/
+data/reports/
+backend/data/faiss/
+backend/data/reports/
+backend/data/uploads/
+axiom/backend/data/faiss/
+axiom/backend/data/reports/
+axiom/backend/data/uploads/

@@ -1,0 +1,43 @@
+STANDARD OPERATING PROCEDURE
+Document ID: SOP-OPS-101
+Title: Standard Operating Procedure: Hot Work Near Hydrocarbon Lines
+Revision: Rev 3
+Effective Date: 01-Jan-2024
+Approved By: Plant Manager - D.K. Mehta
+
+Applicable Regulations: OISD-105, Factory Act Section 38, IS-3016
+
+Scope:
+This procedure covers all hot work activities (welding, cutting, grinding) within 15 meters of equipment containing or previously containing hydrocarbons.
+
+PROCEDURE STEPS:
+
+  Step 1: Obtain Hot Work Permit (PTW) from Control Room Supervisor
+    Responsible: Maintenance Supervisor
+    Reference: PTW Procedure SOP-SAFE-001
+
+  Step 2: Confirm gas test shows <1% LEL in work area. Gas test valid for 4 hours maximum.
+    Responsible: Safety Officer
+    Reference: Gas Testing Procedure SOP-SAFE-012
+
+  Step 3: Verify equipment isolation (Double Block and Bleed). Check isolation certificate.
+    Responsible: Operations Engineer
+    Reference: Isolation Procedure SOP-OPS-050
+
+  Step 4: Position fire extinguisher and fire watch personnel. Minimum 2 DCP extinguishers (10 kg).
+    Responsible: Fire & Safety
+    Reference: OISD-105 Clause 6.3
+
+  Step 5: Commence hot work. Continuous gas monitoring required. Stop work if LEL exceeds 10%.
+    Responsible: Executing Technician
+    Reference: OISD-105 Clause 7.1
+
+PPE Required:
+  - Fire-retardant coveralls
+  - Welding helmet with appropriate shade
+  - Leather gloves
+  - Safety shoes with metatarsal guard
+  - Portable gas detector (4-gas)
+
+Emergency Procedure:
+In case of fire/gas leak: Stop work immediately -> Activate area alarm -> Evacuate to Assembly Point B -> Call Emergency: Ext 999

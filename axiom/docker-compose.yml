@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  # FREE: Local LLM server (Ollama)
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # After startup, pull models with:
+    # docker exec -it axiom-ollama-1 ollama pull llama3.1:8b
+    # docker exec -it axiom-ollama-1 ollama pull nomic-embed-text
+
+  # FREE: Graph database (Knowledge Graph)
+  neo4j:
+    image: neo4j:5.22-community
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/axiom_password
+      NEO4J_PLUGINS: '["apoc"]'
+    volumes:
+      - neo4j_data:/data
+
+  # FREE: Message broker / cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - neo4j
+      - redis
+      - ollama
+    volumes:
+      - ./data:/app/data
+      - faiss_data:/app/data/faiss
+
+volumes:
+  neo4j_data:
+  ollama_data:
+  faiss_data:

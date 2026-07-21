@@ -1,0 +1,68 @@
+INCIDENT REPORT: INC-2022000
+Date: 27-Mar-2024
+Title: Near Miss - Pressure Safety Valve Failure to Operate
+Equipment: PSV-3001
+Severity: Critical
+
+Description:
+During routine PSV testing, PSV-3001 on reactor R-601 failed to lift at set pressure. Valve found stuck due to corrosion on seat. Discovered during planned test - no actual overpressure event.
+
+Root Cause Analysis:
+Process fluid causing accelerated corrosion on valve internals. Testing interval of 24 months inadequate for this service.
+
+Corrective Actions:
+  - Replace PSV-3001 with corrosion-resistant trim material
+  - Reduce testing interval to 12 months for all PSVs in similar service
+  - Conduct immediate testing of all PSVs in corrosive service
+  - Update risk assessment per OISD-154 requirements
+
+Lessons Learned:
+This incident highlights the importance of adhering to OEM maintenance recommendations and timely execution of inspection schedules. Reference: API-580.
+
+============================================================
+
+INCIDENT REPORT: INC-2022001
+Date: 11-Apr-2023
+Title: Pump Seal Failure - Hydrocarbon Release
+Equipment: P-101A
+Severity: High
+
+Description:
+Mechanical seal failure on pump P-101A resulted in minor hydrocarbon release. Area gas detectors activated. Emergency isolation carried out within 3 minutes. No injuries. Approximately 50 liters released to containment area.
+
+Root Cause Analysis:
+Seal operated beyond recommended life (18 months vs 12 months recommended). PM schedule not updated after OEM bulletin OEM-2022-045.
+
+Corrective Actions:
+  - Replace seal with upgraded Type B seal as per OEM recommendation
+  - Update PM schedule to 12-month seal replacement
+  - Review all similar pumps for seal life compliance
+  - Issue safety alert to all operating teams
+
+Lessons Learned:
+This incident highlights the importance of adhering to OEM maintenance recommendations and timely execution of inspection schedules. Reference: OISD-163.
+
+============================================================
+
+INCIDENT REPORT: INC-2022002
+Date: 24-Nov-2022
+Title: Compressor Trip - High Discharge Temperature
+Equipment: C-301
+Severity: Medium
+
+Description:
+Compressor C-301 tripped on high discharge temperature alarm. Temperature reached 185°C (alarm at 180°C, design limit 200°C). Automatic shutdown functioned correctly. No equipment damage.
+
+Root Cause Analysis:
+Intercooler HX-301 fouled, reducing cooling capacity by 30%. Fouling inspection was 4 months overdue.
+
+Corrective Actions:
+  - Clean intercooler HX-301
+  - Establish fouling monitoring via pressure drop trending
+  - Add cooling efficiency KPI to daily operator rounds
+  - Review inspection scheduling compliance for all heat exchangers
+
+Lessons Learned:
+This incident highlights the importance of adhering to OEM maintenance recommendations and timely execution of inspection schedules. Reference: OISD-163.
+
+============================================================

@@ -1,0 +1,172 @@
+[
+  {
+    "report_id": "IR-2023000",
+    "equipment_tag": "R-601",
+    "inspection_type": "External Visual Inspection",
+    "date": "09-Mar-2024",
+    "inspector": "P. Nair",
+    "next_inspection_due": "10-Nov-2024",
+    "findings": "Thickness measurement at location TML-7: 5.2 mm (minimum required: 6.0 mm per API-510). Corrosion rate: 0.19 mm/year. No defects found. Fit for continued service.",
+    "recommendation": "Continue normal service. Next inspection as scheduled.",
+    "applicable_standards": [
+      "API-510",
+      "API-570",
+      "OISD-128",
+      "ASME PCC-2"
+    ],
+    "compliance_status": "Compliant"
+  },
+  {
+    "report_id": "IR-2023001",
+    "equipment_tag": "P-101A",
+    "inspection_type": "Pressure Test",
+    "date": "15-Jan-2023",
+    "inspector": "P. Nair",
+    "next_inspection_due": "29-Nov-2023",
+    "findings": "Thickness measurement at location TML-5: 6.7 mm (minimum required: 6.0 mm per API-510). Corrosion rate: 0.44 mm/year. No defects found. Fit for continued service.",
+    "recommendation": "Continue normal service. Next inspection as scheduled.",
+    "applicable_standards": [
+      "API-510",
+      "API-570",
+      "OISD-128",
+      "ASME PCC-2"
+    ],
+    "compliance_status": "Non-compliant - action required"
+  },
+  {
+    "report_id": "IR-2023002",
+    "equipment_tag": "V-402",
+    "inspection_type": "Pressure Test",
+    "date": "02-Mar-2023",
+    "inspector": "R. Iyer",
+    "next_inspection_due": "05-Jun-2024",
+    "findings": "Thickness measurement at location TML-10: 8.6 mm (minimum required: 6.0 mm per API-510). Corrosion rate: 0.16 mm/year. Localized thinning detected. Recommend repair or monitoring at reduced interval.",
+    "recommendation": "Apply protective coating during next shutdown.",
+    "applicable_standards": [
+      "API-510",
+      "API-570",
+      "OISD-128",
+      "ASME PCC-2"
+    ],
+    "compliance_status": "Compliant with conditions"
+  },
+  {
+    "report_id": "IR-2023003",
+    "equipment_tag": "HX-501",
+    "inspection_type": "Thickness Survey",
+    "date": "13-Apr-2023",
+    "inspector": "R. Iyer",
+    "next_inspection_due": "11-May-2024",
+    "findings": "Thickness measurement at location TML-11: 8.1 mm (minimum required: 6.0 mm per API-510). Corrosion rate: 0.15 mm/year. Localized thinning detected. Recommend repair or monitoring at reduced interval.",
+    "recommendation": "Install corrosion monitoring probe.",
+    "applicable_standards": [
+      "API-510",
+      "API-570",
+      "OISD-128",
+      "ASME PCC-2"
+    ],
+    "compliance_status": "Non-compliant - action required"
+  },
+  {
+    "report_id": "IR-2023004",
+    "equipment_tag": "R-601",
+    "inspection_type": "Pressure Test",
+    "date": "16-Feb-2024",
+    "inspector": "S. Banerjee",
+    "next_inspection_due": "06-Sep-2024",
+    "findings": "Thickness measurement at location TML-3: 8.4 mm (minimum required: 6.0 mm per API-510). Corrosion rate: 0.32 mm/year. No defects found. Fit for continued service.",
+    "recommendation": "Apply protective coating during next shutdown.",
+    "applicable_standards": [
+      "API-510",
+      "API-570",
+      "OISD-128",
+      "ASME PCC-2"
+    ],
+    "compliance_status": "Compliant"
+  },
+  {
+    "report_id": "IR-2023005",
+    "equipment_tag": "P-101A",
+    "inspection_type": "External Visual Inspection",
+    "date": "05-Jan-2024",
+    "inspector": "S. Banerjee",
+    "next_inspection_due": "26-Aug-2025",
+    "findings": "Thickness measurement at location TML-6: 9.3 mm (minimum required: 6.0 mm per API-510). Corrosion rate: 0.10 mm/year. Localized thinning detected. Recommend repair or monitoring at reduced interval.",
+    "recommendation": "Install corrosion monitoring probe.",
+    "applicable_standards": [
+      "API-510",
+      "API-570",
+      "OISD-128",
+      "ASME PCC-2"
+    ],
+    "compliance_status": "Non-compliant - action required"
+  },
+  {
+    "report_id": "IR-2023006",
+    "equipment_tag": "V-401",
+    "inspection_type": "Thickness Survey",
+    "date": "12-Dec-2023",
+    "inspector": "M. Krishnan",
+    "next_inspection_due": "13-Nov-2025",
+    "findings": "Thickness measurement at location TML-2: 8.0 mm (minimum required: 6.0 mm per API-510). Corrosion rate: 0.27 mm/year. Localized thinning detected. Recommend repair or monitoring at reduced interval.",
+    "recommendation": "Reduce inspection interval to 12 months.",
+    "applicable_standards": [
+      "API-510",
+      "API-570",
+      "OISD-128",
+      "ASME PCC-2"
+    ],
+    "compliance_status": "Compliant with conditions"
+  },
+  {
+    "report_id": "IR-2023007",
+    "equipment_tag": "V-401",
+    "inspection_type": "Thickness Survey",
+    "date": "03-Mar-2023",
+    "inspector": "R. Iyer",
+    "next_inspection_due": "01-Feb-2025",
+    "findings": "Thickness measurement at location TML-7: 10.8 mm (minimum required: 6.0 mm per API-510). Corrosion rate: 0.44 mm/year. No defects found. Fit for continued service.",
+    "recommendation": "Continue normal service. Next inspection as scheduled.",
+    "applicable_standards": [
+      "API-510",
+      "API-570",
+      "OISD-128",
+      "ASME PCC-2"
+    ],
+    "compliance_status": "Compliant"
+  },
+  {
+    "report_id": "IR-2023008",
+    "equipment_tag": "C-301",
+    "inspection_type": "Pressure Test",
+    "date": "25-Sep-2023",
+    "inspector": "M. Krishnan",
+    "next_inspection_due": "25-Jan-2025",
+    "findings": "Thickness measurement at location TML-7: 8.6 mm (minimum required: 6.0 mm per API-510). Corrosion rate: 0.49 mm/year. No defects found. Fit for continued service.",
+    "recommendation": "Continue normal service. Next inspection as scheduled.",
+    "applicable_standards": [
+      "API-510",
+      "API-570",
+      "OISD-128",
+      "ASME PCC-2"
+    ],
+    "compliance_status": "Compliant"
+  },
+  {
+    "report_id": "IR-2023009",
+    "equipment_tag": "R-601",
+    "inspection_type": "Pressure Test",
+    "date": "21-Jan-2023",
+    "inspector": "R. Iyer",
+    "next_inspection_due": "06-Aug-2024",
+    "findings": "Thickness measurement at location TML-6: 6.2 mm (minimum required: 6.0 mm per API-510). Corrosion rate: 0.30 mm/year. No defects found. Fit for continued service.",
+    "recommendation": "Apply protective coating during next shutdown.",
+    "applicable_standards": [
+      "API-510",
+      "API-570",
+      "OISD-128",
+      "ASME PCC-2"
+    ],
+    "compliance_status": "Non-compliant - action required"
+  }
+]

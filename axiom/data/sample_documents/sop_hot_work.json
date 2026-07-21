@@ -1,0 +1,53 @@
+{
+  "document_id": "SOP-OPS-101",
+  "title": "Standard Operating Procedure: Hot Work Near Hydrocarbon Lines",
+  "revision": "Rev 3",
+  "effective_date": "01-Jan-2024",
+  "approved_by": "Plant Manager - D.K. Mehta",
+  "applicable_regulations": [
+    "OISD-105",
+    "Factory Act Section 38",
+    "IS-3016"
+  ],
+  "scope": "This procedure covers all hot work activities (welding, cutting, grinding) within 15 meters of equipment containing or previously containing hydrocarbons.",
+  "steps": [
+    {
+      "step": 1,
+      "action": "Obtain Hot Work Permit (PTW) from Control Room Supervisor",
+      "responsible": "Maintenance Supervisor",
+      "reference": "PTW Procedure SOP-SAFE-001"
+    },
+    {
+      "step": 2,
+      "action": "Confirm gas test shows <1% LEL in work area. Gas test valid for 4 hours maximum.",
+      "responsible": "Safety Officer",
+      "reference": "Gas Testing Procedure SOP-SAFE-012"
+    },
+    {
+      "step": 3,
+      "action": "Verify equipment isolation (Double Block and Bleed). Check isolation certificate.",
+      "responsible": "Operations Engineer",
+      "reference": "Isolation Procedure SOP-OPS-050"
+    },
+    {
+      "step": 4,
+      "action": "Position fire extinguisher and fire watch personnel. Minimum 2 DCP extinguishers (10 kg).",
+      "responsible": "Fire & Safety",
+      "reference": "OISD-105 Clause 6.3"
+    },
+    {
+      "step": 5,
+      "action": "Commence hot work. Continuous gas monitoring required. Stop work if LEL exceeds 10%.",
+      "responsible": "Executing Technician",
+      "reference": "OISD-105 Clause 7.1"
+    }
+  ],
+  "ppe_required": [
+    "Fire-retardant coveralls",
+    "Welding helmet with appropriate shade",
+    "Leather gloves",
+    "Safety shoes with metatarsal guard",
+    "Portable gas detector (4-gas)"
+  ],
+  "emergency_procedure": "In case of fire/gas leak: Stop work immediately -> Activate area alarm -> Evacuate to Assembly Point B -> Call Emergency: Ext 999"
+}

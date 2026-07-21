@@ -1,0 +1,154 @@
+[
+  {
+    "incident_id": "INC-2022000",
+    "date": "27-Mar-2024",
+    "title": "Near Miss - Pressure Safety Valve Failure to Operate",
+    "equipment_tag": "PSV-3001",
+    "severity": "Critical",
+    "area": "Unit-2",
+    "reported_by": "Control Room Operator",
+    "description": "During routine PSV testing, PSV-3001 on reactor R-601 failed to lift at set pressure. Valve found stuck due to corrosion on seat. Discovered during planned test - no actual overpressure event.",
+    "root_cause_analysis": "Process fluid causing accelerated corrosion on valve internals. Testing interval of 24 months inadequate for this service.",
+    "corrective_actions": [
+      "Replace PSV-3001 with corrosion-resistant trim material",
+      "Reduce testing interval to 12 months for all PSVs in similar service",
+      "Conduct immediate testing of all PSVs in corrosive service",
+      "Update risk assessment per OISD-154 requirements"
+    ],
+    "lessons_learned": "This incident highlights the importance of adhering to OEM maintenance recommendations and timely execution of inspection schedules. Reference: API-580.",
+    "investigation_status": "Closed"
+  },
+  {
+    "incident_id": "INC-2022001",
+    "date": "11-Apr-2023",
+    "title": "Pump Seal Failure - Hydrocarbon Release",
+    "equipment_tag": "P-101A",
+    "severity": "High",
+    "area": "Unit-5",
+    "reported_by": "Field Technician",
+    "description": "Mechanical seal failure on pump P-101A resulted in minor hydrocarbon release. Area gas detectors activated. Emergency isolation carried out within 3 minutes. No injuries. Approximately 50 liters released to containment area.",
+    "root_cause_analysis": "Seal operated beyond recommended life (18 months vs 12 months recommended). PM schedule not updated after OEM bulletin OEM-2022-045.",
+    "corrective_actions": [
+      "Replace seal with upgraded Type B seal as per OEM recommendation",
+      "Update PM schedule to 12-month seal replacement",
+      "Review all similar pumps for seal life compliance",
+      "Issue safety alert to all operating teams"
+    ],
+    "lessons_learned": "This incident highlights the importance of adhering to OEM maintenance recommendations and timely execution of inspection schedules. Reference: OISD-163.",
+    "investigation_status": "Closed"
+  },
+  {
+    "incident_id": "INC-2022002",
+    "date": "24-Nov-2022",
+    "title": "Compressor Trip - High Discharge Temperature",
+    "equipment_tag": "C-301",
+    "severity": "Medium",
+    "area": "Unit-2",
+    "reported_by": "Shift Supervisor",
+    "description": "Compressor C-301 tripped on high discharge temperature alarm. Temperature reached 185\u00b0C (alarm at 180\u00b0C, design limit 200\u00b0C). Automatic shutdown functioned correctly. No equipment damage.",
+    "root_cause_analysis": "Intercooler HX-301 fouled, reducing cooling capacity by 30%. Fouling inspection was 4 months overdue.",
+    "corrective_actions": [
+      "Clean intercooler HX-301",
+      "Establish fouling monitoring via pressure drop trending",
+      "Add cooling efficiency KPI to daily operator rounds",
+      "Review inspection scheduling compliance for all heat exchangers"
+    ],
+    "lessons_learned": "This incident highlights the importance of adhering to OEM maintenance recommendations and timely execution of inspection schedules. Reference: OISD-163.",
+    "investigation_status": "Closed"
+  },
+  {
+    "incident_id": "INC-2022003",
+    "date": "16-Jun-2023",
+    "title": "Near Miss - Pressure Safety Valve Failure to Operate",
+    "equipment_tag": "PSV-3001",
+    "severity": "Critical",
+    "area": "Unit-1",
+    "reported_by": "Shift Supervisor",
+    "description": "During routine PSV testing, PSV-3001 on reactor R-601 failed to lift at set pressure. Valve found stuck due to corrosion on seat. Discovered during planned test - no actual overpressure event.",
+    "root_cause_analysis": "Process fluid causing accelerated corrosion on valve internals. Testing interval of 24 months inadequate for this service.",
+    "corrective_actions": [
+      "Replace PSV-3001 with corrosion-resistant trim material",
+      "Reduce testing interval to 12 months for all PSVs in similar service",
+      "Conduct immediate testing of all PSVs in corrosive service",
+      "Update risk assessment per OISD-154 requirements"
+    ],
+    "lessons_learned": "This incident highlights the importance of adhering to OEM maintenance recommendations and timely execution of inspection schedules. Reference: API-580.",
+    "investigation_status": "Closed"
+  },
+  {
+    "incident_id": "INC-2022004",
+    "date": "30-Sep-2023",
+    "title": "Compressor Trip - High Discharge Temperature",
+    "equipment_tag": "C-301",
+    "severity": "Medium",
+    "area": "Unit-2",
+    "reported_by": "Shift Supervisor",
+    "description": "Compressor C-301 tripped on high discharge temperature alarm. Temperature reached 185\u00b0C (alarm at 180\u00b0C, design limit 200\u00b0C). Automatic shutdown functioned correctly. No equipment damage.",
+    "root_cause_analysis": "Intercooler HX-301 fouled, reducing cooling capacity by 30%. Fouling inspection was 4 months overdue.",
+    "corrective_actions": [
+      "Clean intercooler HX-301",
+      "Establish fouling monitoring via pressure drop trending",
+      "Add cooling efficiency KPI to daily operator rounds",
+      "Review inspection scheduling compliance for all heat exchangers"
+    ],
+    "lessons_learned": "This incident highlights the importance of adhering to OEM maintenance recommendations and timely execution of inspection schedules. Reference: API-580.",
+    "investigation_status": "Closed"
+  },
+  {
+    "incident_id": "INC-2022005",
+    "date": "25-Jun-2023",
+    "title": "Compressor Trip - High Discharge Temperature",
+    "equipment_tag": "C-301",
+    "severity": "Medium",
+    "area": "Unit-2",
+    "reported_by": "Shift Supervisor",
+    "description": "Compressor C-301 tripped on high discharge temperature alarm. Temperature reached 185\u00b0C (alarm at 180\u00b0C, design limit 200\u00b0C). Automatic shutdown functioned correctly. No equipment damage.",
+    "root_cause_analysis": "Intercooler HX-301 fouled, reducing cooling capacity by 30%. Fouling inspection was 4 months overdue.",
+    "corrective_actions": [
+      "Clean intercooler HX-301",
+      "Establish fouling monitoring via pressure drop trending",
+      "Add cooling efficiency KPI to daily operator rounds",
+      "Review inspection scheduling compliance for all heat exchangers"
+    ],
+    "lessons_learned": "This incident highlights the importance of adhering to OEM maintenance recommendations and timely execution of inspection schedules. Reference: OISD-163.",
+    "investigation_status": "Closed"
+  },
+  {
+    "incident_id": "INC-2022006",
+    "date": "07-Feb-2023",
+    "title": "Pump Seal Failure - Hydrocarbon Release",
+    "equipment_tag": "P-101A",
+    "severity": "High",
+    "area": "Unit-3",
+    "reported_by": "Field Technician",
+    "description": "Mechanical seal failure on pump P-101A resulted in minor hydrocarbon release. Area gas detectors activated. Emergency isolation carried out within 3 minutes. No injuries. Approximately 50 liters released to containment area.",
+    "root_cause_analysis": "Seal operated beyond recommended life (18 months vs 12 months recommended). PM schedule not updated after OEM bulletin OEM-2022-045.",
+    "corrective_actions": [
+      "Replace seal with upgraded Type B seal as per OEM recommendation",
+      "Update PM schedule to 12-month seal replacement",
+      "Review all similar pumps for seal life compliance",
+      "Issue safety alert to all operating teams"
+    ],
+    "lessons_learned": "This incident highlights the importance of adhering to OEM maintenance recommendations and timely execution of inspection schedules. Reference: OISD-163.",
+    "investigation_status": "Closed"
+  },
+  {
+    "incident_id": "INC-2022007",
+    "date": "26-Oct-2023",
+    "title": "Near Miss - Pressure Safety Valve Failure to Operate",
+    "equipment_tag": "PSV-3001",
+    "severity": "Critical",
+    "area": "Unit-1",
+    "reported_by": "Shift Supervisor",
+    "description": "During routine PSV testing, PSV-3001 on reactor R-601 failed to lift at set pressure. Valve found stuck due to corrosion on seat. Discovered during planned test - no actual overpressure event.",
+    "root_cause_analysis": "Process fluid causing accelerated corrosion on valve internals. Testing interval of 24 months inadequate for this service.",
+    "corrective_actions": [
+      "Replace PSV-3001 with corrosion-resistant trim material",
+      "Reduce testing interval to 12 months for all PSVs in similar service",
+      "Conduct immediate testing of all PSVs in corrosive service",
+      "Update risk assessment per OISD-154 requirements"
+    ],
+    "lessons_learned": "This incident highlights the importance of adhering to OEM maintenance recommendations and timely execution of inspection schedules. Reference: API-580.",
+    "investigation_status": "Closed"
+  }
+]
